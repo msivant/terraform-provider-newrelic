@@ -92,8 +92,8 @@ func resourceNewRelicCloudOciAccountLinkCreate(ctx context.Context, d *schema.Re
 func expandOciCloudLinkAccountInput(d *schema.ResourceData) cloud.CloudLinkCloudAccountsInput {
 	ociAccount := cloud.CloudOciLinkAccountInput{}
 
-	if tenantId, ok := d.GetOk("tenant_id"); ok {
-		ociAccount.TenantId = tenantId.(string)
+	if tenantID, ok := d.GetOk("tenant_id"); ok {
+		ociAccount.TenantId = tenantID.(string)
 	}
 
 	if name, ok := d.GetOk("name"); ok {

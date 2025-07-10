@@ -23,15 +23,15 @@ func TestAccNewRelicCloudOciLinkAccount_Basic(t *testing.T) {
 		t.Skipf("Skipping this test, as NEW_RELIC_SUBACCOUNT_ID must be set for this test to run.")
 	}
 
-	testOciTenantId := os.Getenv("INTEGRATION_TESTING_OCI_TENANT_ID")
-	if testOciTenantId == "" {
+	testOciTenantID := os.Getenv("INTEGRATION_TESTING_OCI_TENANT_ID")
+	if testOciTenantID == "" {
 		t.Skipf("INTEGRATION_TESTING_OCI_TENANT_ID must be set for this acceptance test")
 	}
 
 	OciLinkAccountTestConfig := map[string]string{
 		"name":       testOciLinkAccountName,
 		"account_id": strconv.Itoa(testSubAccountID),
-		"tenant_id":        testOciTenantId,
+		"tenant_id":  testOciTenantID,
 	}
 
 	resource.ParallelTest(t, resource.TestCase{
