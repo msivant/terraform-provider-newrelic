@@ -61,7 +61,7 @@ func resourceNewRelicCloudOciAccountLinkCreate(ctx context.Context, d *schema.Re
 
 		if len(cloudLinkAccountPayload.Errors) > 0 {
 			for _, err := range cloudLinkAccountPayload.Errors {
-				if strings.Contains(err.Message, "The tenantId you entered does not correspond to your OCI account") {
+				if strings.Contains(err.Message, "OCI Tenant name already exists. Please enter a new OCI tenant name") {
 					return retry.RetryableError(fmt.Errorf("%s : %s", err.Type, err.Message))
 				}
 				diags = append(diags, diag.Diagnostic{
@@ -92,8 +92,8 @@ func resourceNewRelicCloudOciAccountLinkCreate(ctx context.Context, d *schema.Re
 func expandOciCloudLinkAccountInput(d *schema.ResourceData) cloud.CloudLinkCloudAccountsInput {
 	ociAccount := cloud.CloudOciLinkAccountInput{}
 
-	if arn, ok := d.GetOk("tenant_id"); ok {
-		ociAccount.TenantId = arn.(string)
+	if tenantId, ok := d.GetOk("tenant_id"); ok {
+		ociAccount.TenantId = tenantId.(string)
 	}
 
 	if name, ok := d.GetOk("name"); ok {
@@ -135,6 +135,6 @@ func resourceNewRelicCloudOciAccountLinkRead(ctx context.Context, d *schema.Reso
 
 func readOciLinkedAccount(d *schema.ResourceData, result *cloud.CloudLinkedAccount) {
 	_ = d.Set("account_id", result.NrAccountId)
-	_ = d.Set("tenant_id", result.AuthLabel)
+	_ = d.Set("tenant_id", result.ExternalId)
 	_ = d.Set("name", result.Name)
 }
