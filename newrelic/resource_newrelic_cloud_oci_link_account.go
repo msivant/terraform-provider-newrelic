@@ -17,6 +17,8 @@ func resourceNewRelicCloudOciAccountLinkAccount() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceNewRelicCloudOciAccountLinkCreate,
 		ReadContext:   resourceNewRelicCloudOciAccountLinkRead,
+		UpdateContext: resourceNewRelicCloudOciAccountLinkUpdate,
+		DeleteContext: resourceNewRelicCloudOciAccountLinkDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -137,4 +139,13 @@ func readOciLinkedAccount(d *schema.ResourceData, result *cloud.CloudLinkedAccou
 	_ = d.Set("account_id", result.NrAccountId)
 	_ = d.Set("tenant_id", result.ExternalId)
 	_ = d.Set("name", result.Name)
+}
+
+func resourceNewRelicCloudOciAccountLinkUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	return nil
+}
+
+func resourceNewRelicCloudOciAccountLinkDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	d.SetId("")
+	return nil
 }
