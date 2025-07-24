@@ -46,6 +46,13 @@ func TestAccNewRelicCloudOciLinkAccount_Basic(t *testing.T) {
 					testAccCheckNewRelicCloudOciLinkAccountExists(resourceName),
 				),
 			},
+			//Test: Update
+			{
+				Config: testAccNewRelicOciLinkAccountConfig(OciLinkAccountTestConfig, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckNewRelicCloudOciLinkAccountExists(resourceName),
+				),
+			},
 			// Test: Import
 			{
 				ResourceName:      resourceName,
@@ -108,6 +115,10 @@ func testAccCheckNewRelicCloudOciLinkAccountDestroy(s *terraform.State) error {
 }
 
 func testAccNewRelicOciLinkAccountConfig(OciLinkAccountTestConfig map[string]string, updated bool) string {
+	if updated == true {
+		OciLinkAccountTestConfig["name"] += "_updated"
+	}
+
 	return fmt.Sprintf(`
 	provider "newrelic" {
 		account_id = "` + OciLinkAccountTestConfig["account_id"] + `"
