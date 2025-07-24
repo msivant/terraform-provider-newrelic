@@ -142,10 +142,69 @@ func readOciLinkedAccount(d *schema.ResourceData, result *cloud.CloudLinkedAccou
 }
 
 func resourceNewRelicCloudOciAccountLinkUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	providerConfig := meta.(*ProviderConfig)
+	client := providerConfig.NewClient
+	accountID := selectAccountID(providerConfig, d)
+	id, _ := strconv.Atoi(d.Id())
+	input := []cloud.CloudRenameAccountsInput{
+		{
+			Name:            d.Get("name").(string),
+			LinkedAccountId: id,
+		},
+	}
+	cloudRenameAccountPayload, err := client.Cloud.CloudRenameAccountWithContext(ctx, accountID, input)
+	if err != nil {
+		diag.FromErr(err)
+	}
+
+	var diags diag.Diagnostics
+
+	if len(cloudRenameAccountPayload.Errors) > 0 {
+		for _, err := range cloudRenameAccountPayload.Errors {
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  err.Type + " " + err.Message,
+			})
+		}
+		return diags
+	}
+
 	return nil
 }
 
 func resourceNewRelicCloudOciAccountLinkDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	providerConfig := meta.(*ProviderConfig)
+	client := providerConfig.NewClient
+	accountID := selectAccountID(providerConfig, d)
+
+	linkedAccountID, convErr := strconv.Atoi(d.Id())
+
+	if convErr != nil {
+		return diag.FromErr(convErr)
+	}
+
+	unlinkAccountInput := []cloud.CloudUnlinkAccountsInput{
+		{
+			LinkedAccountId: linkedAccountID,
+		},
+	}
+	cloudUnlinkAccountPayload, err := client.Cloud.CloudUnlinkAccountWithContext(ctx, accountID, unlinkAccountInput)
+	if err != nil {
+		diag.FromErr(err)
+	}
+
+	var diags diag.Diagnostics
+
+	if len(cloudUnlinkAccountPayload.Errors) > 0 {
+		for _, err := range cloudUnlinkAccountPayload.Errors {
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  err.Type + " " + err.Message,
+			})
+		}
+		return diags
+	}
+
 	d.SetId("")
 	return nil
 }
