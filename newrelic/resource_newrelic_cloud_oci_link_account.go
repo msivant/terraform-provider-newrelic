@@ -6,8 +6,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/newrelic/newrelic-client-go/v2/pkg/cloud"
@@ -55,40 +53,32 @@ func resourceNewRelicCloudOciAccountLinkCreate(ctx context.Context, d *schema.Re
 
 	var diags diag.Diagnostics
 
-	retryErr := retry.RetryContext(ctx, d.Timeout(schema.TimeoutCreate), func() *retry.RetryError {
-		cloudLinkAccountPayload, err := client.Cloud.CloudLinkAccountWithContext(ctx, accountID, linkAccountInput)
-		if err != nil {
-			return retry.NonRetryableError(err)
-		}
+	//cloudLinkAccountWithContext func which links Gcp account with Newrelic
+	//which returns payload and error
+	cloudLinkAccountPayload, err := client.Cloud.CloudLinkAccountWithContext(ctx, accountID, linkAccountInput)
 
-		if len(cloudLinkAccountPayload.Errors) > 0 {
-			for _, err := range cloudLinkAccountPayload.Errors {
-				if strings.Contains(err.Message, "OCI Tenant name already exists. Please enter a new OCI tenant name") {
-					return retry.RetryableError(fmt.Errorf("%s : %s", err.Type, err.Message))
-				}
-				diags = append(diags, diag.Diagnostic{
-					Severity: diag.Error,
-					Summary:  err.Type + " " + err.Message,
-				})
-			}
-		}
-
-		if len(cloudLinkAccountPayload.LinkedAccounts) > 0 {
-			d.SetId(strconv.Itoa(cloudLinkAccountPayload.LinkedAccounts[0].ID))
-		}
-
-		return nil
-	})
-
-	if retryErr != nil {
-		return diag.FromErr(retryErr)
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
-	if len(diags) > 0 {
-		return diags
+	if cloudLinkAccountPayload == nil {
+		return diag.FromErr(fmt.Errorf("[ERROR] cloudLinkAccountPayload was nil"))
 	}
 
-	return nil
+	if len(cloudLinkAccountPayload.Errors) > 0 {
+		for _, err := range cloudLinkAccountPayload.Errors {
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  err.Type + " " + err.Message,
+			})
+		}
+	}
+
+	if len(cloudLinkAccountPayload.LinkedAccounts) > 0 {
+		d.SetId(strconv.Itoa(cloudLinkAccountPayload.LinkedAccounts[0].ID))
+	}
+
+	return diags
 }
 
 func expandOciCloudLinkAccountInput(d *schema.ResourceData) cloud.CloudLinkCloudAccountsInput {
