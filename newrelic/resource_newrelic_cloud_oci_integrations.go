@@ -40,9 +40,9 @@ func generateOciIntegrationSchema() map[string]*schema.Schema {
 		"oci_metadata_and_tags": {
 			Type:        schema.TypeList,
 			Description: "OCI Metadata and Tags integration",
-			Elem: &schema.Resource{},
-			Optional: true,
-			MaxItems: 1,
+			Elem:        &schema.Resource{},
+			Optional:    true,
+			MaxItems:    1,
 		},
 	}
 }
