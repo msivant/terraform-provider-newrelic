@@ -40,8 +40,9 @@ func generateOciIntegrationSchema() map[string]*schema.Schema {
 		"oci_metadata_and_tags": {
 			Type:        schema.TypeList,
 			Description: "OCI Metadata and Tags integration",
-			Optional:    true,
-			MaxItems:    1,
+			Elem: &schema.Resource{},
+			Optional: true,
+			MaxItems: 1,
 		},
 	}
 }
@@ -207,7 +208,7 @@ func expandCloudOciDisableinputs(d *schema.ResourceData) cloud.CloudDisableInteg
 	if l, ok := d.GetOk("linked_account_id"); ok {
 		linkedAccountID = l.(int)
 	}
-	if _, ok := d.GetOk("alloy_db"); ok {
+	if _, ok := d.GetOk("oci_metadata_and_tags"); ok {
 		cloudOciDisableInput.OciMetadataAndTags = []cloud.CloudDisableAccountIntegrationInput{{LinkedAccountId: linkedAccountID}}
 	}
 	deleteInput := cloud.CloudDisableIntegrationsInput{
