@@ -27,7 +27,7 @@ locals {
     newrelic-terraform = "true"
   }
   # Names for the network infra
-  vcn_name        = "newrelic-metrics-vcn"
+  vcn_name        = var.vcn_name
   nat_gateway     = "${local.vcn_name}-natgateway"
   service_gateway = "${local.vcn_name}-servicegateway"
   subnet          = "${local.vcn_name}-public-subnet"
@@ -35,7 +35,7 @@ locals {
 
 resource "oci_kms_vault" "newrelic_vault" {
   compartment_id = var.compartment_ocid
-  display_name   = "newrelic-vault"
+  display_name   = var.kms_vault_name
   vault_type     = "DEFAULT"
   freeform_tags  = local.freeform_tags
 }
@@ -56,6 +56,7 @@ resource "oci_vault_secret" "api_key" {
   vault_id       = oci_kms_vault.newrelic_vault.id
   key_id         = oci_kms_key.newrelic_key.id
   secret_name    = "NewRelicAPIKey"
+  description    = "[DO NOT REMOVE] Secret containing New Relic ingest API key for metrics"
   secret_content {
     content_type = "BASE64"
     content      = base64encode(var.newrelic_ingest_api_key)
@@ -67,6 +68,7 @@ resource "oci_vault_secret" "api_key" {
 resource "newrelic_cloud_oci_link_account" "nr_link_account" {  
   tenant_id = var.tenancy_ocid
   name = var.tenancy_ocid
+  description = "[DO NOT REMOVE] Links OCI tenancy to New Relic for cloud integration"
 }
 
 #Resource for the function application
@@ -109,7 +111,8 @@ resource "oci_functions_function" "metrics_function" {
 resource "oci_sch_service_connector" "nr_service_connector" {
   depends_on     = [oci_functions_function.metrics_function]
   compartment_id = var.compartment_ocid
-  display_name   = "${var.connector_hub_name}"
+  display_name   = var.connector_hub_name
+  description   = "[DO NOT REMOVE] Service connector hub for pushing  metrics to New Relic"
 
   # Source Configuration with Monitoring
   source {
@@ -146,7 +149,6 @@ resource "oci_sch_service_connector" "nr_service_connector" {
   }
 
   # Optional tags and additional metadata
-  description   = "Service Connector from Monitoring to Streaming"
   defined_tags  = {}
   freeform_tags = {}
 }

@@ -95,6 +95,8 @@ terraform apply
 - `connector_hub_name` - (Optional) Name of the service connector hub. Default: `"newrelic-metrics-connector-hub"`.
 - `function_app_shape` - (Optional) Shape of the function application. Default: `"GENERIC_X86"`.
 - `metrics_namespaces` - (Optional) List of OCI service namespaces to monitor. Default includes 25+ OCI services.
+- `vcn_name` - (Optional) Name of the VCN for New Relic metrics infrastructure. Default: `"newrelic-metrics-vcn"`.
+- `kms_vault_name` - (Optional) Display name of the KMS vault for storing New Relic secrets. Default: `"newrelic-vault"`.
 
 ## Architecture
 

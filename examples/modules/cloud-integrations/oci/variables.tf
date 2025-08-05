@@ -108,6 +108,18 @@ variable "function_image" {
   default     = ""
 }
 
+variable "vcn_name" {
+  type        = string
+  description = "The name of the VCN for New Relic metrics infrastructure"
+  default     = "newrelic-metrics-vcn"
+}
+
+variable "kms_vault_name" {
+  type        = string
+  description = "The display name of the KMS vault for storing New Relic secrets"
+  default     = "newrelic-vault"
+}
+
 variable "metrics_namespaces" {
   type        = list(string)
   description = "The list of namespaces to send metrics for, within their respective compartments. Remove any namespaces where metrics should not be sent."
