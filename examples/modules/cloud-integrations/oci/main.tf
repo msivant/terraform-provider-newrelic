@@ -68,7 +68,6 @@ resource "oci_vault_secret" "api_key" {
 resource "newrelic_cloud_oci_link_account" "nr_link_account" {  
   tenant_id = var.tenancy_ocid
   name = var.tenancy_ocid
-  description = "[DO NOT REMOVE] Links OCI tenancy to New Relic for cloud integration"
 }
 
 #Resource for the function application
