@@ -165,11 +165,11 @@ Variables:
 * service_account_id: The ID of the New Relic GCP [Service Account](https://cloud.google.com/iam/docs/service-accounts) with [Viewer and Service Usage Consumer roles](https://cloud.google.com/iam/docs/understanding-roles). You can find this ID in the New Relic UI by going to `Infrastructure > GCP > Add a GCP project`. For more information [check out the New Relic docs](https://docs.newrelic.com/docs/infrastructure/google-cloud-platform-integrations/get-started/connect-google-cloud-platform-services-new-relic/).
 * project_id: The ID of the project you want to receive data from in GCP.
 
-### OCI
+### Oracle Cloud Infrastructure
 
 The Oracle Cloud Infrastructure (OCI) integrations report data from various OCI services to your New Relic account. OCI provides enterprise-grade cloud infrastructure services including compute, storage, networking, and database services across multiple regions globally.
 
-The following OCI services may be integrated using the New Relic Terraform Provider. The OCI integration collects metrics from these services via both Service Connector Hub (for streaming metrics) and API polling (for metadata and tags). More details on the arguments needed to set up OCI integrations can be found in the documentation of the [`newrelic_cloud_oci_integrations`](https://registry.terraform.io/providers/newrelic/newrelic/latest/docs/resources/cloud_oci_integrations) resource.
+The following OCI services may be integrated using the New Relic Terraform Provider. The OCI integration collects metrics from these services via both Service Connector Hub (for metrics and logs) and API polling (for metadata and tags). More details on the arguments needed to set up OCI integrations can be found in the documentation of the [`newrelic_cloud_oci_integrations`](https://registry.terraform.io/providers/newrelic/newrelic/latest/docs/resources/cloud_oci_integrations) resource.
 
 |                          |                            |                          |
 |--------------------------|----------------------------|--------------------------|
@@ -183,9 +183,9 @@ The following OCI services may be integrated using the New Relic Terraform Provi
 | `Service Gateway`        | `Virtual Cloud Network`    | `VCN IP`                 |
 | `VM Resource Utilization`|
 
-Check out our [introduction to OCI integrations](https://docs.newrelic.com/docs/infrastructure/oracle-cloud-infrastructure-integrations/get-started/introduction-oracle-cloud-infrastructure-integrations/) and the requirements documentation before continuing with the steps below.
+Check out our [introduction to OCI integration](https://docs.newrelic.com/docs/infrastructure/oracle-cloud-infrastructure-integrations/get-started/introduction-oracle-cloud-infrastructure-integrations/) and the requirements documentation before continuing with the steps below.
 
-The GitHub repository of the Terraform Provider also has an OCI Cloud Integrations 'module', that can be used to simplify setting up an OCI Integration. This module sets up the complete infrastructure including IAM policies, service connector hub, functions, and both streaming metrics and metadata/tags integrations. To use this module, add the following to your Terraform code, and set the variables to your desired values.
+The GitHub repository of the Terraform Provider also has an OCI Cloud Integrations 'module', that can be used to simplify setting up an OCI Integration. This module sets up the complete infrastructure including IAM policies, service connector hub, functions for ingesting metrics and metadata/tags. To use this module, add the following to your Terraform code, and set the variables to your desired values.
 
 -> **NOTE:** This module assumes you've already set up the New Relic and OCI provider with the correct credentials. If you haven't done so, you can find the instructions here: [New Relic instructions](https://registry.terraform.io/providers/newrelic/newrelic/latest/docs/guides/getting_started), [OCI instructions](https://registry.terraform.io/providers/oracle/oci/latest/docs).
 
