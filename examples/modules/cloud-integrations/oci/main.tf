@@ -151,8 +151,3 @@ resource "oci_sch_service_connector" "nr_service_connector" {
   defined_tags  = {}
   freeform_tags = {}
 }
-
-resource "newrelic_cloud_oci_integrations" "newrelic_cloud_integration_pull" {
-  linked_account_id = newrelic_cloud_oci_link_account.nr_link_account.id
-  oci_metadata_and_tags {}
-}
