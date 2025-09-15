@@ -325,6 +325,12 @@ resource_newrelic_one_dashboard_raw_test.go:
 resource_newrelic_one_dashboard_test.go:
   test: true
   product_mapping: DASHBOARDS
+resource_newrelic_pipeline_cloud_rule.go:
+  test: false
+  product_mapping: NGEP
+resource_newrelic_pipeline_cloud_rule_test.go:
+  test: true
+  product_mapping: NGEP
 resource_newrelic_service_level.go:
   test: false
   product_mapping: WORKLOADS
@@ -430,6 +436,9 @@ structures_newrelic_alert_policy_channel.go:
 structures_newrelic_alert_policy_channel_test.go:
   test: true
   product_mapping: ALERTS
+structures_newrelic_api_access_key.go:
+  test: false
+  product_mapping: APIKS
 structures_newrelic_application_settings.go:
   test: false
   product_mapping: APM
