@@ -28,10 +28,56 @@ func TestAccNewRelicCloudOciLinkAccount_Basic(t *testing.T) {
 		t.Skipf("INTEGRATION_TESTING_OCI_TENANT_ID must be set for this acceptance test")
 	}
 
+	testOciCompartmentOcid := os.Getenv("INTEGRATION_TESTING_OCI_COMPARTMENT_OCID")
+	if testOciCompartmentOcid == "" {
+		t.Skipf("INTEGRATION_TESTING_OCI_COMPARTMENT_OCID must be set for this acceptance test")
+	}
+
+	testOciClientId := os.Getenv("INTEGRATION_TESTING_OCI_CLIENT_ID")
+	if testOciClientId == "" {
+		t.Skipf("INTEGRATION_TESTING_OCI_CLIENT_ID must be set for this acceptance test")
+	}
+
+	testOciClientSecret := os.Getenv("INTEGRATION_TESTING_OCI_CLIENT_SECRET")
+	if testOciClientSecret == "" {
+		t.Skipf("INTEGRATION_TESTING_OCI_CLIENT_SECRET must be set for this acceptance test")
+	}
+
+	testOciDomainUrl := os.Getenv("INTEGRATION_TESTING_OCI_DOMAIN_URL")
+	if testOciDomainUrl == "" {
+		t.Skipf("INTEGRATION_TESTING_OCI_DOMAIN_URL must be set for this acceptance test")
+	}
+
+	testOciHomeRegion := os.Getenv("INTEGRATION_TESTING_OCI_HOME_REGION")
+	if testOciHomeRegion == "" {
+		t.Skipf("INTEGRATION_TESTING_OCI_HOME_REGION must be set for this acceptance test")
+	}
+
+	testOciSvcUserName := os.Getenv("INTEGRATION_TESTING_OCI_SVC_USER_NAME")
+	if testOciSvcUserName == "" {
+		t.Skipf("INTEGRATION_TESTING_OCI_SVC_USER_NAME must be set for this acceptance test")
+	}
+
+	// Optional fields
+	testOciRegion := os.Getenv("INTEGRATION_TESTING_OCI_REGION")
+	testOciMetricStackOcid := os.Getenv("INTEGRATION_TESTING_OCI_METRIC_STACK_OCID")
+	testOciIngestVaultOcid := os.Getenv("INTEGRATION_TESTING_OCI_INGEST_VAULT_OCID")
+	testOciUserVaultOcid := os.Getenv("INTEGRATION_TESTING_OCI_USER_VAULT_OCID")
+
 	OciLinkAccountTestConfig := map[string]string{
-		"name":       testOciLinkAccountName,
-		"account_id": strconv.Itoa(testSubAccountID),
-		"tenant_id":  testOciTenantID,
+		"name":              testOciLinkAccountName,
+		"account_id":        strconv.Itoa(testSubAccountID),
+		"tenant_id":         testOciTenantID,
+		"compartment_ocid":  testOciCompartmentOcid,
+		"oci_client_id":     testOciClientId,
+		"oci_client_secret": testOciClientSecret,
+		"oci_domain_url":    testOciDomainUrl,
+		"oci_home_region":   testOciHomeRegion,
+		"oci_svc_user_name": testOciSvcUserName,
+		"oci_region":        testOciRegion,
+		"metric_stack_ocid": testOciMetricStackOcid,
+		"ingest_vault_ocid": testOciIngestVaultOcid,
+		"user_vault_ocid":   testOciUserVaultOcid,
 	}
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -55,9 +101,10 @@ func TestAccNewRelicCloudOciLinkAccount_Basic(t *testing.T) {
 			},
 			// Test: Import
 			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"oci_client_secret"},
 			},
 		},
 	})
@@ -119,16 +166,57 @@ func testAccNewRelicOciLinkAccountConfig(OciLinkAccountTestConfig map[string]str
 		OciLinkAccountTestConfig["name"] += "_updated"
 	}
 
-	return fmt.Sprintf(`
+	config := fmt.Sprintf(`
 	provider "newrelic" {
-		account_id = "` + OciLinkAccountTestConfig["account_id"] + `"
+		account_id = "%s"
 		alias      = "cloud-integration-provider"
 	}
 
 	resource "newrelic_cloud_oci_link_account" "foo" {
-		provider        	   = newrelic.cloud-integration-provider
-		tenant_id              = "` + OciLinkAccountTestConfig["tenant_id"] + `"
-		name                   = "` + OciLinkAccountTestConfig["name"] + `"
-		account_id			   = "` + OciLinkAccountTestConfig["account_id"] + `"
-	}`)
+		provider               = newrelic.cloud-integration-provider
+		tenant_id              = "%s"
+		name                   = "%s"
+		account_id             = "%s"
+		compartment_ocid       = "%s"
+		oci_client_id          = "%s"
+		oci_client_secret      = "%s"
+		oci_domain_url         = "%s"
+		oci_home_region        = "%s"
+		oci_svc_user_name      = "%s"`,
+		OciLinkAccountTestConfig["account_id"],
+		OciLinkAccountTestConfig["tenant_id"],
+		OciLinkAccountTestConfig["name"],
+		OciLinkAccountTestConfig["account_id"],
+		OciLinkAccountTestConfig["compartment_ocid"],
+		OciLinkAccountTestConfig["oci_client_id"],
+		OciLinkAccountTestConfig["oci_client_secret"],
+		OciLinkAccountTestConfig["oci_domain_url"],
+		OciLinkAccountTestConfig["oci_home_region"],
+		OciLinkAccountTestConfig["oci_svc_user_name"])
+
+	// Add optional fields if they exist
+	if OciLinkAccountTestConfig["oci_region"] != "" && updated == true {
+		config += fmt.Sprintf(`
+		oci_region             = "%s"`, OciLinkAccountTestConfig["oci_region"])
+	}
+
+	if OciLinkAccountTestConfig["metric_stack_ocid"] != "" && updated == true {
+		config += fmt.Sprintf(`
+		metric_stack_ocid      = "%s"`, OciLinkAccountTestConfig["metric_stack_ocid"])
+	}
+
+	if OciLinkAccountTestConfig["ingest_vault_ocid"] != "" {
+		config += fmt.Sprintf(`
+		ingest_vault_ocid      = "%s"`, OciLinkAccountTestConfig["ingest_vault_ocid"])
+	}
+
+	if OciLinkAccountTestConfig["user_vault_ocid"] != "" {
+		config += fmt.Sprintf(`
+		user_vault_ocid        = "%s"`, OciLinkAccountTestConfig["user_vault_ocid"])
+	}
+
+	config += `
+	}`
+
+	return config
 }
