@@ -1,0 +1,73 @@
+resource "oci_functions_application" "metrics_function_app" {
+  compartment_id = var.compartment_ocid
+  config = {
+    "FORWARD_TO_NR"                = "True"
+    "LOGGING_ENABLED"              = "False"
+    "NR_METRIC_ENDPOINT"           = var.newrelic_endpoint
+    "TENANCY_OCID"                 = var.tenancy_ocid
+    "SECRET_OCID"                  = var.ingest_api_secret_ocid
+    "VAULT_REGION"                 = local.home_region
+  }
+  defined_tags               = {}
+  display_name               = "${var.nr_prefix}-metrics-function-app"
+  freeform_tags              = local.freeform_tags
+  network_security_group_ids = []
+  shape                      = "GENERIC_X86"
+  subnet_ids = [
+    data.oci_core_subnet.input_subnet.id,
+  ]
+}
+
+resource "oci_functions_function" "metrics_function" {
+  application_id = oci_functions_application.metrics_function_app.id
+  depends_on = [oci_functions_application.metrics_function_app]
+  display_name   = "${oci_functions_application.metrics_function_app.display_name}-metrics-function"
+  memory_in_mbs  = "256"
+  defined_tags   = {}
+  freeform_tags = local.freeform_tags
+  image          = "${var.region}.ocir.io/idms1yfytybe/public-newrelic-repo:latest"
+  provisioned_concurrency_config {
+    strategy = "CONSTANT"
+    count = 20
+  }
+}
+
+resource "oci_sch_service_connector" "service_connector" {
+  for_each = { for hub in var.connector_hubs_data : hub["name"] => hub }
+  depends_on = [oci_functions_function.metrics_function]
+  compartment_id = var.compartment_ocid
+  display_name   = each.value["name"]
+  description    = each.value["description"]
+  freeform_tags  = local.freeform_tags
+
+  source {
+    kind = "monitoring"
+
+    dynamic "monitoring_sources" {
+      for_each = each.value["compartments"]
+      content {
+        compartment_id = monitoring_sources.value["compartment_id"]
+        namespace_details {
+          kind = "selected"
+
+          dynamic "namespaces" {
+            for_each = monitoring_sources.value["namespaces"]
+            content {
+              namespace = namespaces.value
+              metrics {
+                kind = "all"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  target {
+    kind = "functions"
+    function_id           = oci_functions_function.metrics_function.id
+    batch_size_in_kbs     = each.value["batch_size_in_kbs"]
+    batch_time_in_sec     = each.value["batch_time_in_sec"]
+  }
+}
