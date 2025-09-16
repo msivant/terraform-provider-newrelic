@@ -167,9 +167,15 @@ Variables:
 
 ### Oracle Cloud Infrastructure
 
-The Oracle Cloud Infrastructure (OCI) integrations report data from various OCI services to your New Relic account. OCI provides enterprise-grade cloud infrastructure services including compute, storage, networking, and database services across multiple regions globally.
+Oracle Cloud Infrastructure (OCI) integrations collect metrics, logs, and metadata from supported OCI services and send them to your New Relic account. Data collection uses a combination of:
 
-The following OCI services may be integrated using the New Relic Terraform Provider. The OCI integration collects metrics from these services via both Service Connector Hub (for metrics and logs) and API polling (for metadata and tags). More details on the arguments needed to set up OCI integrations can be found in the documentation of the [`newrelic_cloud_oci_integrations`](https://registry.terraform.io/providers/newrelic/newrelic/latest/docs/resources/cloud_oci_integrations) resource.
+* Service Connector Hub pipelines (for metrics / log export)
+* Functions for transformation and enrichment (where applicable)
+* API polling to supplement metadata and tags
+
+Review the [`newrelic_cloud_oci_integrations` resource documentation](https://registry.terraform.io/providers/newrelic/newrelic/latest/docs/resources/cloud_oci_integrations) for service‑level arguments, and the [OCI integration introduction](https://docs.newrelic.com/docs/infrastructure/oracle-cloud-infrastructure-integrations/get-started/introduction-oracle-cloud-infrastructure-integrations/) before you proceed.
+
+#### Supported OCI service categories (non‑exhaustive)
 
 |                          |                            |                          |
 |--------------------------|----------------------------|--------------------------|
@@ -183,41 +189,101 @@ The following OCI services may be integrated using the New Relic Terraform Provi
 | `Service Gateway`        | `Virtual Cloud Network`    | `VCN IP`                 |
 | `VM Resource Utilization`|
 
-Check out our [introduction to OCI integration](https://docs.newrelic.com/docs/infrastructure/oracle-cloud-infrastructure-integrations/get-started/introduction-oracle-cloud-infrastructure-integrations/) and the requirements documentation before continuing with the steps below.
+#### Modular OCI setup
 
-The GitHub repository of the Terraform Provider also has an OCI Cloud Integrations 'module', that can be used to simplify setting up an OCI Integration. This module sets up the complete infrastructure including IAM policies, service connector hub, functions for ingesting metrics and metadata/tags. To use this module, add the following to your Terraform code, and set the variables to your desired values.
+Two composable modules are available under `examples/modules/cloud-integrations/oci/` so you can provision only what you need:
 
--> **NOTE:** This module assumes you've already set up the New Relic and OCI provider with the correct credentials. If you haven't done so, you can find the instructions here: [New Relic instructions](https://registry.terraform.io/providers/newrelic/newrelic/latest/docs/guides/getting_started), [OCI instructions](https://registry.terraform.io/providers/oracle/oci/latest/docs).
+* `policy-setup` – Creates IAM policies and identity trust / configuration prerequisites (including workload identity federation inputs) required to link an OCI tenancy to New Relic.
+* `metrics-integration` – Creates Service Connector Hub resources, optional networking (VCN / subnets), and supporting artifacts that export metrics (and optionally logs) to New Relic.
 
-```
-module "newrelic-oci-cloud-integrations" {
-  source = "github.com/newrelic/terraform-provider-newrelic//examples/modules/cloud-integrations/oci"
+Use them independently (for example, a central security team applies `policy-setup` while a platform team applies `metrics-integration`) or combine them in the same configuration. In all cases, the `policy-setup` module must be applied successfully before the `metrics-integration` module, because the latter depends on IAM policies, dynamic groups / identity trust, and (if configured) workload identity federation artifacts created by the former.
 
-  tenancy_ocid            = "ocid1.tenancy.oc1..aaaaaaaaexample"
-  compartment_ocid        = "ocid1.compartment.oc1..aaaaaaaaexample"
-  current_user_ocid       = "ocid1.user.oc1..aaaaaaaaexample"
-  region                  = "us-phoenix-1"
-  fingerprint             = "your_api_key_fingerprint"
-  private_key_path        = "~/.oci/oci_api_key.pem"
-  
-  newrelic_account_id     = 1234567
-  newrelic_ingest_api_key = "your_newrelic_ingest_api_key"
-  newrelic_user_api_key   = "your_newrelic_user_api_key"
-  newrelic_endpoint       = "https://metric-api.newrelic.com/metric/v1"
+> **NOTE:** These modules assume both the New Relic and OCI providers are already configured. See: [New Relic getting started](https://registry.terraform.io/providers/newrelic/newrelic/latest/docs/guides/getting_started) and [OCI provider setup](https://registry.terraform.io/providers/oracle/oci/latest/docs).
+
+#### Example: Policy setup module
+
+```hcl
+module "oci_policy_setup" {
+  source = "github.com/newrelic/terraform-provider-newrelic//examples/modules/cloud-integrations/oci/policy-setup"
+
+  tenancy_ocid      = "ocid1.tenancy.oc1..aaaaaaaaexampletenancy"
+  compartment_ocid  = "ocid1.compartment.oc1..bbbbbbbbexamplecmp"
+  current_user_ocid = "ocid1.user.oc1..ccccccccexampleuser1234"
+  region            = "us-phoenix-1"
+  fingerprint       = "12:34:56:78:9a:bc:de:f0:12:34:56:78:9a:bc:de:f0"
+
+  # New Relic linkage / API keys (dummy values)
+  newrelic_account_id      = 1234567
+  newrelic_ingest_api_key  = "NRII-INGEST-API-KEY-EXAMPLE"
+  newrelic_user_api_key    = "NRAA-USER-API-KEY-EXAMPLE"
+  newrelic_provider_region = "US" # or "EU"
+
+  # Workload Identity Federation / OAuth2 (sample values)
+  client_id      = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+  client_secret  = "super-secret-client-value"
+  oci_domain_url = "https://idcs-abcdef1234567890.identity.oraclecloud.com"
+  svc_user_name  = "svc-newrelic-wif"
+
+  # Enable only metrics & common policies (example)
+  policy_stack = "METRICS,COMMON"
 }
 ```
 
-[*You can find the sourcecode for the module on Github.*](https://github.com/newrelic/terraform-provider-newrelic/tree/main/examples/modules/cloud-integrations/oci)
+Key variables (policy module):
 
-Variables:
+* `policy_stack` – Comma‑separated list of any of `METRICS`, `LOGS`, `COMMON` controlling which policy sets are deployed.
+* `client_id`, `client_secret`, `oci_domain_url`, `svc_user_name` – Workload identity federation (OAuth2) inputs (see the OCI link account resource docs for guidance).
+* `newrelic_provider_region` – Region context for New Relic provider operations (for example, `US` or `EU`).
 
-* `tenancy_ocid`: The OCI tenancy OCID where resources will be created.
-* `compartment_ocid`: The OCID of the compartment where resources will be created.
-* `current_user_ocid`: The OCID of the current user executing the Terraform script.
-* `region`: OCI Region (e.g., us-phoenix-1, us-ashburn-1, eu-frankfurt-1).
-* `fingerprint`: The fingerprint of the OCI API key.
-* `private_key_path`: The path to the private key file for OCI API authentication.
-* `newrelic_account_id`: The New Relic account ID for linking and sending metrics.
-* `newrelic_ingest_api_key`: The New Relic Ingest API key for sending metrics.
-* `newrelic_user_api_key`: The New Relic User API key for linking the OCI account.
-* `newrelic_endpoint` (Optional): The New Relic metric endpoint. Use `https://metric-api.eu.newrelic.com/metric/v1` for EU accounts.
+#### Example: Metrics integration module
+
+```hcl
+module "oci_metrics_integration" {
+  source = "github.com/newrelic/terraform-provider-newrelic//examples/modules/cloud-integrations/oci/metrics-integration"
+
+  tenancy_ocid     = "ocid1.tenancy.oc1..aaaaaaaaexampletenancy"
+  compartment_ocid = "ocid1.compartment.oc1..bbbbbbbbexamplecmp"
+  region           = "us-ashburn-1"
+  fingerprint      = "12:34:56:78:9a:bc:de:f0:12:34:56:78:9a:bc:de:f0"
+
+  # Endpoint selection (validated internally)
+  newrelic_endpoint = "newrelic-metric-api" # or newrelic-eu-metric-api
+
+  # Networking
+  create_vcn         = true
+  function_subnet_id = "" # ignored when create_vcn = true
+
+  # Vault secret OCIDs (dummy)
+  ingest_api_secret_ocid = "ocid1.vaultsecret.oc1..dddddddigingestsecret"
+  user_api_secret_ocid   = "ocid1.vaultsecret.oc1..eeeeeeeeusersecret123"
+
+  # Connector hub payload + configuration
+  payload_link = "https://objectstorage.us-ashburn-1.oraclecloud.com/n/newrelic/b/payloads/o/metrics-payload.json"
+  connector_hubs_data = [
+    {
+      batch_size_in_kbs = 100
+      batch_time_in_sec = 60
+      compartments = [
+        {
+          compartment_id = "ocid1.tenancy.oc1..aaaaaaaaexampletenancy"
+          namespaces     = ["oci_faas"]
+        }
+      ]
+      description = "[DO NOT DELETE] New Relic Metrics Connector Hub"
+      name        = "newrelic-metrics-connector-hub-us-ashburn-1-1"
+      region      = "us-ashburn-1"
+    }
+  ]
+}
+```
+
+Key variables (metrics module):
+
+* `create_vcn` / `function_subnet_id` – Networking control. Set `create_vcn=false` and provide an existing `function_subnet_id` to reuse existing infrastructure.
+* `connector_hubs_data` – List of objects defining batch sizing, compartments, namespaces, and naming for Service Connector Hub pipelines.
+* `ingest_api_secret_ocid` / `user_api_secret_ocid` – Vault secret OCIDs for ingest and user API keys (avoid embedding plain‑text keys).
+* `newrelic_endpoint` – Logical endpoint selector; the module maps this value to the actual metric ingest URL (use the EU variant for EU accounts).
+
+> Required ordering: Always apply the `policy-setup` module before the `metrics-integration` module. Only run them together in a single configuration if Terraform can resolve the dependency graph (for example, by referencing outputs from `policy-setup`). Applying metrics integration without the prerequisite policies will result in authorization failures when creating Service Connector Hub resources or invoking functions.
+
+[*Browse the OCI module source code on GitHub*](https://github.com/newrelic/terraform-provider-newrelic/tree/main/examples/modules/cloud-integrations/oci)
