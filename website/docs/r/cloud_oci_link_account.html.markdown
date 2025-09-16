@@ -19,6 +19,23 @@ You need an Oracle Cloud Infrastructure tenancy with IAM permissions to create a
 
 If you encounter issues or bugs, please [open an issue in the GitHub repository](https://github.com/newrelic/terraform-provider-newrelic/issues/new/choose).
 
+### Workload Identity Federation (WIF) Attributes
+
+The following arguments rely on an OCI Identity Domain OAuth2 client set up for workload identity federation (identity propagation): `oci_client_id`, `oci_client_secret`, `oci_domain_url`, and `oci_svc_user_name`.
+
+To create and retrieve these values, follow Oracle's guidance for configuring identity propagation / JWT token exchange:
+
+[Oracle documentation: Create an identity propagation trust (JWT token exchange)](https://docs.oracle.com/en-us/iaas/Content/Identity/api-getstarted/json_web_token_exchange.htm#jwt_token_exchange__create-identity-propagation-trust)
+
+WIF configuration steps:
+1. Create (or identify) an Identity Domain and register an OAuth2 confidential application (client) to represent New Relic ingestion.
+2. Generate / record the client ID (`oci_client_id`) and client secret (`oci_client_secret`). Store the secret securely (e.g., in OCI Vault; reference its OCID via `ingest_vault_ocid` / `user_vault_ocid` if desired).
+3. Use the Identity Domain base URL as `oci_domain_url` (format: `https://idcs-<hash>.identity.oraclecloud.com`).
+4. Provide / map a service user (or principal) used for workload identity federation as `oci_svc_user_name`.
+5. Ensure the client has the required scopes and the tenancy policies allow the token exchange.
+
+> TIP: Rotating the OAuth2 client secret only requires updating `oci_client_secret`; it does not force resource replacement.
+
 ## Example Usage
 
 Minimal example (required arguments for creation):
