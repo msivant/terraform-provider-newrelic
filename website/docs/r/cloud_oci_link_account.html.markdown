@@ -94,8 +94,8 @@ The following arguments are supported (current provider schema):
 - `oci_domain_url` - (Required) Base URL of the OCI Identity Domain (e.g. `https://idcs-<hash>.identity.oraclecloud.com`).
 - `oci_home_region` - (Required) Home region of the tenancy (e.g. `us-ashburn-1`).
 - `oci_svc_user_name` - (Required) Service user name associated with the WIF configuration.
-- `ingest_vault_ocid` - (Optional) Vault secret OCID containing an ingest secret.
-- `user_vault_ocid` - (Optional) Vault secret OCID containing a user or auxiliary secret.
+- `ingest_vault_ocid` - (Required) Vault secret OCID containing an ingest secret.
+- `user_vault_ocid` - (Required) Vault secret OCID containing a user or auxiliary secret.
 - `oci_region` - (Optional, Update-only) OCI region for the linkage (ignored on create, applied on update).
 - `metric_stack_ocid` - (Optional, Update-only) Metric stack OCID (ignored on create, applied on update).
 
