@@ -49,23 +49,6 @@ variable "payload_link" {
 variable "connector_hubs_data" {
   type        = list(map(any))
   description = "List of maps containing connector hub configuration data."
-  default = [
-    {
-      "batch_size_in_kbs" = 100
-      "batch_time_in_sec" = 60
-      "compartments" = [
-        {
-          "compartment_id" = "ocid1.tenancy.oc1..aaaaaaaaslaq5synueyzouxaimk3szzf66iw6od7xyiam5myn4lqhcsfu5fq"
-          "namespaces" = [
-            "oci_faas",
-          ]
-        },
-      ]
-      "description" = "[DO NOT DELETE] New Relic Metrics Connector Hub to distribute metrics to New Relic"
-      "name"        = "newrelic-metrics-connector-hub-us-ashburn-1-1"
-      "region"      = "us-ashburn-1"
-    },
-  ]
 }
 
 variable "ingest_api_secret_ocid" {
