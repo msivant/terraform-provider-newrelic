@@ -173,8 +173,6 @@ Oracle Cloud Infrastructure (OCI) integrations collect metrics, logs, and metada
 * Functions for transformation and enrichment (where applicable)
 * API polling to supplement metadata and tags
 
-Review the [`newrelic_cloud_oci_integrations` resource documentation](https://registry.terraform.io/providers/newrelic/newrelic/latest/docs/resources/cloud_oci_integrations) for service‑level arguments, and the [OCI integration introduction](https://docs.newrelic.com/docs/infrastructure/oracle-cloud-infrastructure-integrations/get-started/introduction-oracle-cloud-infrastructure-integrations/) before you proceed.
-
 #### Supported OCI service categories (non‑exhaustive)
 
 |                          |                            |                          |
