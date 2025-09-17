@@ -165,6 +165,7 @@ Variables:
 * service_account_id: The ID of the New Relic GCP [Service Account](https://cloud.google.com/iam/docs/service-accounts) with [Viewer and Service Usage Consumer roles](https://cloud.google.com/iam/docs/understanding-roles). You can find this ID in the New Relic UI by going to `Infrastructure > GCP > Add a GCP project`. For more information [check out the New Relic docs](https://docs.newrelic.com/docs/infrastructure/google-cloud-platform-integrations/get-started/connect-google-cloud-platform-services-new-relic/).
 * project_id: The ID of the project you want to receive data from in GCP.
 
+<a id="oci"></a>
 ### Oracle Cloud Infrastructure
 
 Oracle Cloud Infrastructure (OCI) integrations collect metrics, logs, and metadata from supported OCI services and send them to your New Relic account. Data collection uses a combination of:
