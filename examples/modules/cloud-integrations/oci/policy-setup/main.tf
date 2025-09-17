@@ -1,5 +1,4 @@
 resource "oci_identity_compartment" "newrelic_compartment" {
-  count          = local.newRelic_core_integration_policy ? 1 : 0
   compartment_id = var.tenancy_ocid
   name           = "newrelic-compartment"
   description    = "Compartment for New Relic integration resources"
@@ -9,8 +8,7 @@ resource "oci_identity_compartment" "newrelic_compartment" {
 
 #Key Vault and Secret for New Relic Ingest and User API Key
 resource "oci_kms_vault" "newrelic_vault" {
-  count          = local.newRelic_core_integration_policy ? 1 : 0
-  compartment_id = oci_identity_compartment.newrelic_compartment[count.index].id
+  compartment_id = oci_identity_compartment.newrelic_compartment.id
   display_name   = "newrelic-vault"
   vault_type     = "DEFAULT"
   freeform_tags  = local.freeform_tags
@@ -22,14 +20,13 @@ resource "oci_kms_vault" "newrelic_vault" {
 }
 
 resource "oci_kms_key" "newrelic_key" {
-  count          = local.newRelic_core_integration_policy ? 1 : 0
-  compartment_id = oci_identity_compartment.newrelic_compartment[count.index].id
+  compartment_id = oci_identity_compartment.newrelic_compartment.id
   display_name   = "newrelic-key"
   key_shape {
     algorithm = "AES"
     length    = 32
   }
-  management_endpoint = oci_kms_vault.newrelic_vault[count.index].management_endpoint
+  management_endpoint = oci_kms_vault.newrelic_vault[0].management_endpoint
   freeform_tags       = local.freeform_tags
   timeouts {
     create = "30m"
@@ -39,10 +36,9 @@ resource "oci_kms_key" "newrelic_key" {
 }
 
 resource "oci_vault_secret" "ingest_api_key" {
-  count          = local.newRelic_core_integration_policy ? 1 : 0
-  compartment_id = oci_identity_compartment.newrelic_compartment[count.index].id
-  vault_id       = oci_kms_vault.newrelic_vault[count.index].id
-  key_id         = oci_kms_key.newrelic_key[count.index].id
+  compartment_id = oci_identity_compartment.newrelic_compartment.id
+  vault_id       = oci_kms_vault.newrelic_vault.id
+  key_id         = oci_kms_key.newrelic_key.id
   secret_name    = "NewRelicIngestAPIKey"
   secret_content {
     content_type = "BASE64"
@@ -57,10 +53,9 @@ resource "oci_vault_secret" "ingest_api_key" {
 }
 
 resource "oci_vault_secret" "user_api_key" {
-  count          = local.newRelic_core_integration_policy ? 1 : 0
-  compartment_id = oci_identity_compartment.newrelic_compartment[count.index].id
-  vault_id       = oci_kms_vault.newrelic_vault[count.index].id
-  key_id         = oci_kms_key.newrelic_key[count.index].id
+  compartment_id = oci_identity_compartment.newrelic_compartment.id
+  vault_id       = oci_kms_vault.newrelic_vault.id
+  key_id         = oci_kms_key.newrelic_key.id
   secret_name    = "NewRelicUserAPIKey"
   secret_content {
     content_type = "BASE64"
@@ -76,7 +71,6 @@ resource "oci_vault_secret" "user_api_key" {
 
 #Resource for the dynamic group
 resource "oci_identity_dynamic_group" "nr_service_connector_group" {
-  count          = local.is_home_region && local.newRelic_core_integration_policy ? 1 : 0
   compartment_id = var.tenancy_ocid
   description    = "[DO NOT REMOVE] Dynamic group for service connector"
   matching_rule  = "ANY {resource.type = 'serviceconnector', resource.type = 'fnfunc'}"
@@ -115,7 +109,6 @@ resource "oci_identity_policy" "nr_logs_policy" {
 
 #Resource for the metrics/Logging (Common) policies
 resource "oci_identity_policy" "nr_common_policy" {
-  count          = local.is_home_region && local.newRelic_core_integration_policy ? 1 : 0
   depends_on     = [oci_identity_dynamic_group.nr_service_connector_group]
   compartment_id = var.tenancy_ocid
   description    = "[DO NOT REMOVE] Policy to have any connector hub read from monitoring source and write to a target function"
@@ -130,17 +123,19 @@ resource "oci_identity_policy" "nr_common_policy" {
 }
 
 resource "newrelic_cloud_oci_link_account" "linkAccount" {
-  count             = local.newRelic_core_integration_policy ? 1 : 0
   account_id        = var.newrelic_account_id
   name              = local.linked_account_name
-  compartment_ocid  = local.newRelic_core_integration_policy ? oci_identity_compartment.newrelic_compartment[0].id : ""
+  compartment_ocid  = oci_identity_compartment.newrelic_compartment.id
   oci_home_region   = local.home_region
   tenant_id         = var.tenancy_ocid
-  ingest_vault_ocid = local.newRelic_core_integration_policy ? oci_vault_secret.ingest_api_key[0].id : ""
-  user_vault_ocid   = local.newRelic_core_integration_policy ? oci_vault_secret.user_api_key[0].id : ""
+  ingest_vault_ocid = oci_vault_secret.ingest_api_key.id
+  user_vault_ocid   = oci_vault_secret.user_api_key.id
   oci_client_id     = var.client_id
   oci_client_secret = var.client_secret
   oci_domain_url    = var.oci_domain_url
   oci_svc_user_name = var.svc_user_name
 }
 
+output "compartment_ocid" {
+  value = oci_identity_compartment.newrelic_compartment.id
+}

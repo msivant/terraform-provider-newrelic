@@ -41,11 +41,6 @@ variable "function_subnet_id" {
   description = "The OCID of the subnet to be used for the function app. If create_vcn is set to true, that will take precedence"
 }
 
-variable "payload_link" {
-  type        = string
-  description = "The link to the payload for the connector hubs."
-}
-
 variable "connector_hubs_data" {
   type        = list(map(any))
   description = "List of maps containing connector hub configuration data."

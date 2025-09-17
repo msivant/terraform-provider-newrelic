@@ -255,8 +255,6 @@ module "oci_metrics_integration" {
   ingest_api_secret_ocid = "ocid1.vaultsecret.oc1..dddddddigingestsecret"
   user_api_secret_ocid   = "ocid1.vaultsecret.oc1..eeeeeeeeusersecret123"
 
-  # Connector hub payload + configuration
-  payload_link = "https://objectstorage.us-ashburn-1.oraclecloud.com/n/newrelic/b/payloads/o/metrics-payload.json"
   connector_hubs_data = [
     {
       batch_size_in_kbs = 100

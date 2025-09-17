@@ -10,7 +10,6 @@ locals {
   }
   newrelic_metrics_access_policy   = contains(split(",", var.policy_stack), "METRICS")
   newrelic_logs_access_policy      = contains(split(",", var.policy_stack), "LOGS")
-  newRelic_core_integration_policy = contains(split(",", var.policy_stack), "COMMON")
   newrelic_logs_policy             = "${var.nr_prefix}-logs-policy"
   newrelic_metrics_policy          = "${var.nr_prefix}-metrics-policy"
   newrelic_common_policy           = "${var.nr_prefix}-common-policy"
