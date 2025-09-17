@@ -33,7 +33,7 @@ resource "oci_functions_function" "metrics_function" {
 }
 
 resource "oci_sch_service_connector" "service_connector" {
-  for_each = { for hub in var.connector_hubs_data : hub["name"] => hub }
+  for_each = { for hub in jsondecode(var.connector_hubs_data) : hub["name"] => hub }
   depends_on = [oci_functions_function.metrics_function]
   compartment_id = var.compartment_ocid
   display_name   = each.value["name"]

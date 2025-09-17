@@ -42,7 +42,7 @@ variable "function_subnet_id" {
 }
 
 variable "connector_hubs_data" {
-  type        = list(map(any))
+  type        = string
   description = "List of maps containing connector hub configuration data."
 }
 

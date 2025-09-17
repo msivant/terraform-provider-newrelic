@@ -206,7 +206,7 @@ module "oci_policy_setup" {
 
   tenancy_ocid      = "ocid1.tenancy.oc1..aaaaaaaaexampletenancy"
   current_user_ocid = "ocid1.user.oc1..ccccccccexampleuser1234"
-  region            = "us-phoenix-1"
+  region            = "iad"
   fingerprint       = "12:34:56:78:9a:bc:de:f0:12:34:56:78:9a:bc:de:f0"
   private_key       = "USER_PVT_KEY"
 
@@ -241,7 +241,7 @@ module "oci_metrics_integration" {
 
   tenancy_ocid     = "ocid1.tenancy.oc1..aaaaaaaaexampletenancy"
   compartment_ocid = "ocid1.compartment.oc1..bbbbbbbbexamplecmp" # or module.oci_policy_setup.compartment_ocid
-  region           = "us-ashburn-1"
+  region           = "iad"
   fingerprint      = "12:34:56:78:9a:bc:de:f0:12:34:56:78:9a:bc:de:f0"
   private_key       = "USER_PVT_KEY"
 
@@ -253,31 +253,42 @@ module "oci_metrics_integration" {
   function_subnet_id = "" # ignored when create_vcn = true
 
   # Vault secret OCIDs (dummy)
-  ingest_api_secret_ocid = "ocid1.vaultsecret.oc1..dddddddigingestsecret" # or module.oci_policy_setup.ingest_api_secret_ocid
-  user_api_secret_ocid   = "ocid1.vaultsecret.oc1..eeeeeeeeusersecret123" # or module.oci_policy_setup.user_api_secret_ocid
+  ingest_api_secret_ocid = "ocid1.vaultsecret.oc1..dddddddigingestsecret" # or module.oci_policy_setup.ingest_vault_ocid
+  user_api_secret_ocid   = "ocid1.vaultsecret.oc1..eeeeeeeeusersecret123" # or module.oci_policy_setup.user_vault_ocid
 
-  connector_hubs_data = [
-    {
-      batch_size_in_kbs = 100
-      batch_time_in_sec = 60
-      compartments = [
-        {
-          compartment_id = "ocid1.tenancy.oc1..aaaaaaaaexampletenancy"
-          namespaces     = ["oci_faas"]
-        }
-      ]
-      description = "[DO NOT DELETE] New Relic Metrics Connector Hub"
-      name        = "newrelic-metrics-connector-hub-us-ashburn-1-1"
-      region      = "us-ashburn-1"
-    }
-  ]
+  connector_hubs_data = "[{\"batch_size_in_kbs\":100,\"batch_time_in_sec\":60,\"compartments\":[{\"compartment_id\":\"ocid1.tenancy.oc1..aaaaaaaaexampletenancy\",\"namespaces\":[\"oci_faas\"]}],\"description\":\"[DO NOT DELETE] New Relic Metrics Connector Hub\",\"name\":\"newrelic-metrics-connector-hub-us-ashburn-1-1\",\"region\":\"us-ashburn-1\"}]"
 }
 ```
 
 Key variables (metrics module):
 
 * `create_vcn` / `function_subnet_id` – Networking control. Set `create_vcn=false` and provide an existing `function_subnet_id` to reuse existing infrastructure.
-* `connector_hubs_data` – List of objects defining batch sizing, compartments, namespaces, and naming for Service Connector Hub pipelines.
+* `connector_hubs_data` – A JSON *string* (must be valid, stringified JSON) whose root is an array of connector hub definition objects. Each object supports:
+  * `batch_size_in_kbs` (number)
+  * `batch_time_in_sec` (number)
+  * `compartments` (array of objects with `compartment_id` and `namespaces` (array of strings))
+  * `description` (string)
+  * `name` (string)
+  * `region` (string – OCI region for the connector hub)
+  The example above shows a single‑element JSON array wrapped in quotes to satisfy Terraform's string input expectation. Example object structure:
+
+  ```json
+  [
+    {
+      "batch_size_in_kbs": 100,
+      "batch_time_in_sec": 60,
+      "compartments": [
+        {
+          "compartment_id": "ocid1.tenancy.oc1..aaaaaaaaexampletenancy",
+          "namespaces": ["oci_faas"]
+        }
+      ],
+      "description": "[DO NOT DELETE] New Relic Metrics Connector Hub",
+      "name": "newrelic-metrics-connector-hub-us-ashburn-1-1",
+      "region": "us-ashburn-1"
+    }
+  ]
+  ```
 * `ingest_api_secret_ocid` / `user_api_secret_ocid` – Vault secret OCIDs for ingest and user API keys (avoid embedding plain‑text keys).
 * `newrelic_endpoint` – Logical endpoint selector; the module maps this value to the actual metric ingest URL (use the EU variant for EU accounts).
 
