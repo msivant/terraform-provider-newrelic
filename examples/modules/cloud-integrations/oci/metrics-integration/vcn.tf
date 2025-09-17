@@ -7,7 +7,7 @@ module "vcn" {
   freeform_tags            = local.freeform_tags
   vcn_cidrs                = ["10.0.0.0/16"]
   vcn_dns_label            = "nrfunction"
-  vcn_name                 = local.vcn_name
+  vcn_name                 = "${local.vcn_name}-${local.terraform_suffix}"
   lockdown_default_seclist = false
   subnets = {
     private = {
@@ -32,7 +32,7 @@ data "oci_core_route_tables" "default_vcn_route_table" {
 
   filter {
     name   = "display_name"
-    values = ["Default Route Table for ${local.vcn_name}"]
+    values = ["Default Route Table for ${local.vcn_name} (${local.terraform_suffix})"]
     regex  = false
   }
 }

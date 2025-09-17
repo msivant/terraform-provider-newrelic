@@ -9,7 +9,7 @@ resource "oci_functions_application" "metrics_function_app" {
     "VAULT_REGION"                 = local.home_region
   }
   defined_tags               = {}
-  display_name               = "${var.nr_prefix}-metrics-function-app"
+  display_name               = "${var.nr_prefix}-metrics-${var.region}-function-app-${local.terraform_suffix}"
   freeform_tags              = local.freeform_tags
   network_security_group_ids = []
   shape                      = "GENERIC_X86"
@@ -21,7 +21,7 @@ resource "oci_functions_application" "metrics_function_app" {
 resource "oci_functions_function" "metrics_function" {
   application_id = oci_functions_application.metrics_function_app.id
   depends_on = [oci_functions_application.metrics_function_app]
-  display_name   = "${oci_functions_application.metrics_function_app.display_name}-metrics-function"
+  display_name   = "${oci_functions_application.metrics_function_app.display_name}-metrics-function-${local.terraform_suffix}"
   memory_in_mbs  = "256"
   defined_tags   = {}
   freeform_tags = local.freeform_tags
@@ -36,7 +36,7 @@ resource "oci_sch_service_connector" "service_connector" {
   for_each = { for hub in jsondecode(var.connector_hubs_data) : hub["name"] => hub }
   depends_on = [oci_functions_function.metrics_function]
   compartment_id = var.compartment_ocid
-  display_name   = each.value["name"]
+  display_name   = "${each.value["name"]}-${local.terraform_suffix}"
   description    = each.value["description"]
   freeform_tags  = local.freeform_tags
 

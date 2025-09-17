@@ -1,6 +1,6 @@
 resource "oci_identity_compartment" "newrelic_compartment" {
   compartment_id = var.tenancy_ocid
-  name           = "newrelic-compartment"
+  name           = "newrelic-compartment-${local.terraform_suffix}"
   description    = "Compartment for New Relic integration resources"
   enable_delete  = false
   freeform_tags  = local.freeform_tags
@@ -9,7 +9,7 @@ resource "oci_identity_compartment" "newrelic_compartment" {
 #Key Vault and Secret for New Relic Ingest and User API Key
 resource "oci_kms_vault" "newrelic_vault" {
   compartment_id = oci_identity_compartment.newrelic_compartment.id
-  display_name   = "newrelic-vault"
+  display_name   = "newrelic-vault-${local.terraform_suffix}"
   vault_type     = "DEFAULT"
   freeform_tags  = local.freeform_tags
   timeouts {
@@ -21,7 +21,7 @@ resource "oci_kms_vault" "newrelic_vault" {
 
 resource "oci_kms_key" "newrelic_key" {
   compartment_id = oci_identity_compartment.newrelic_compartment.id
-  display_name   = "newrelic-key"
+  display_name   = "newrelic-key-${local.terraform_suffix}"
   key_shape {
     algorithm = "AES"
     length    = 32
