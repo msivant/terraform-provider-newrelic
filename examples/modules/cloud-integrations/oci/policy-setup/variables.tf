@@ -8,11 +8,6 @@ variable "current_user_ocid" {
   description = "The OCID of the current user executing the terraform script. Do not modify."
 }
 
-variable "compartment_ocid" {
-  type        = string
-  description = "The OCID of the compartment where resources will be created."
-}
-
 variable "nr_prefix" {
   type        = string
   description = "The prefix for naming resources in this module."

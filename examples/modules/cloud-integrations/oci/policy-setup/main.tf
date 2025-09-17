@@ -26,7 +26,7 @@ resource "oci_kms_key" "newrelic_key" {
     algorithm = "AES"
     length    = 32
   }
-  management_endpoint = oci_kms_vault.newrelic_vault[0].management_endpoint
+  management_endpoint = oci_kms_vault.newrelic_vault.management_endpoint
   freeform_tags       = local.freeform_tags
   timeouts {
     create = "30m"
@@ -138,4 +138,12 @@ resource "newrelic_cloud_oci_link_account" "linkAccount" {
 
 output "compartment_ocid" {
   value = oci_identity_compartment.newrelic_compartment.id
+}
+
+output "ingest_vault_ocid" {
+  value = oci_vault_secret.ingest_api_key.id
+}
+
+output "user_vault_ocid" {
+  value = oci_vault_secret.user_api_key.id
 }

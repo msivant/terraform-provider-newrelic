@@ -205,10 +205,10 @@ module "oci_policy_setup" {
   source = "github.com/newrelic/terraform-provider-newrelic//examples/modules/cloud-integrations/oci/policy-setup"
 
   tenancy_ocid      = "ocid1.tenancy.oc1..aaaaaaaaexampletenancy"
-  compartment_ocid  = "ocid1.compartment.oc1..bbbbbbbbexamplecmp"
   current_user_ocid = "ocid1.user.oc1..ccccccccexampleuser1234"
   region            = "us-phoenix-1"
   fingerprint       = "12:34:56:78:9a:bc:de:f0:12:34:56:78:9a:bc:de:f0"
+  private_key       = "USER_PVT_KEY"
 
   # New Relic linkage / API keys (dummy values)
   newrelic_account_id      = 1234567
@@ -240,9 +240,10 @@ module "oci_metrics_integration" {
   source = "github.com/newrelic/terraform-provider-newrelic//examples/modules/cloud-integrations/oci/metrics-integration"
 
   tenancy_ocid     = "ocid1.tenancy.oc1..aaaaaaaaexampletenancy"
-  compartment_ocid = "ocid1.compartment.oc1..bbbbbbbbexamplecmp"
+  compartment_ocid = "ocid1.compartment.oc1..bbbbbbbbexamplecmp" # or module.oci_policy_setup.compartment_ocid
   region           = "us-ashburn-1"
   fingerprint      = "12:34:56:78:9a:bc:de:f0:12:34:56:78:9a:bc:de:f0"
+  private_key       = "USER_PVT_KEY"
 
   # Endpoint selection (validated internally)
   newrelic_endpoint = "newrelic-metric-api" # or newrelic-eu-metric-api
@@ -252,8 +253,8 @@ module "oci_metrics_integration" {
   function_subnet_id = "" # ignored when create_vcn = true
 
   # Vault secret OCIDs (dummy)
-  ingest_api_secret_ocid = "ocid1.vaultsecret.oc1..dddddddigingestsecret"
-  user_api_secret_ocid   = "ocid1.vaultsecret.oc1..eeeeeeeeusersecret123"
+  ingest_api_secret_ocid = "ocid1.vaultsecret.oc1..dddddddigingestsecret" # or module.oci_policy_setup.ingest_api_secret_ocid
+  user_api_secret_ocid   = "ocid1.vaultsecret.oc1..eeeeeeeeusersecret123" # or module.oci_policy_setup.user_api_secret_ocid
 
   connector_hubs_data = [
     {
