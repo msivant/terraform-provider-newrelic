@@ -206,7 +206,6 @@ module "oci_policy_setup" {
   source = "github.com/newrelic/terraform-provider-newrelic//examples/modules/cloud-integrations/oci/policy-setup"
 
   tenancy_ocid      = "ocid1.tenancy.oc1..aaaaaaaaexampletenancy"
-  current_user_ocid = "ocid1.user.oc1..ccccccccexampleuser1234"
   region            = "iad"
   fingerprint       = "12:34:56:78:9a:bc:de:f0:12:34:56:78:9a:bc:de:f0"
   private_key       = "USER_PVT_KEY"

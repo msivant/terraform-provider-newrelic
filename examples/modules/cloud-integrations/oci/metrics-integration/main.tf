@@ -36,7 +36,7 @@ resource "oci_sch_service_connector" "service_connector" {
   for_each = { for hub in jsondecode(var.connector_hubs_data) : hub["name"] => hub }
   depends_on = [oci_functions_function.metrics_function]
   compartment_id = var.compartment_ocid
-  display_name   = "${each.value["name"]}-${local.terraform_suffix}"
+  display_name   = "${each.value["name"]} (${local.terraform_suffix})"
   description    = each.value["description"]
   freeform_tags  = local.freeform_tags
 

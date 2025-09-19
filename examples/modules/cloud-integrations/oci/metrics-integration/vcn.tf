@@ -32,7 +32,7 @@ data "oci_core_route_tables" "default_vcn_route_table" {
 
   filter {
     name   = "display_name"
-    values = ["Default Route Table for ${local.vcn_name} (${local.terraform_suffix})"]
+    values = ["Default Route Table for ${local.vcn_name}-${local.terraform_suffix}"]
     regex  = false
   }
 }
