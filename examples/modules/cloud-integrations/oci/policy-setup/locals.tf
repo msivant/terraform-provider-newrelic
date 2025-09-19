@@ -3,7 +3,11 @@ locals {
     for region in data.oci_identity_region_subscriptions.subscriptions.region_subscriptions : region.region_name
     if region.is_home_region
   ][0]
-  is_home_region = var.region == local.home_region
+  home_region_key = [
+    for region in data.oci_identity_region_subscriptions.subscriptions.region_subscriptions : region.region_key
+    if region.is_home_region
+  ][0]
+  is_home_region = var.region == local.home_region || lower(var.region) == lower(local.home_region_key)
 
   freeform_tags = {
     newrelic-terraform = "true"
