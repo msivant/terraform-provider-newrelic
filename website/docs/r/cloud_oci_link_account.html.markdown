@@ -85,7 +85,7 @@ resource "newrelic_cloud_oci_link_account" "full" {
 
 The following arguments are supported (current provider schema):
 
-- `account_id` - (Optional, ForceNew) New Relic account to operate on. Overrides the provider-level `account_id`. If omitted, uses the provider default or `NEW_RELIC_ACCOUNT_ID`.
+- `account_id` - (Optional, ForceNew) New Relic account to operate on. Overrides the provider-level `account_id`. If omitted, use the provider default or `NEW_RELIC_ACCOUNT_ID`.
 - `tenant_id` - (Required, ForceNew) OCI tenancy OCID (root tenancy). Changing forces a new linked account.
 - `name` - (Required) Display name for the linked account.
 - `compartment_ocid` - (Required) OCI compartment OCID representing (or containing) the monitored resources/newrelic compartment.
