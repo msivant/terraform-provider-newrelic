@@ -194,8 +194,9 @@ Two composable modules are available under `examples/modules/cloud-integrations/
 
 * `policy-setup` – Creates IAM policies and identity trust / configuration prerequisites (including workload identity federation inputs) required to link an OCI tenancy to New Relic.
 * `metrics-integration` – Creates Service Connector Hub resources, optional networking (VCN / subnets), and supporting artifacts that export metrics (and optionally logs) to New Relic.
+* `logs-integration` – Creates connector hubs, function and function app to export logs from Oracle Cloud to New Relic.
 
-Use them independently (for example, a central security team applies `policy-setup` while a platform team applies `metrics-integration`) or combine them in the same configuration. In all cases, the `policy-setup` module must be applied successfully before the `metrics-integration` module, because the latter depends on IAM policies, dynamic groups / identity trust, and (if configured) workload identity federation artifacts created by the former.
+Use them independently (for example, a central security team applies `policy-setup` while a platform team applies `metrics-integration` and/or `logs-integration`) or combine them in the same configuration. In all cases, the `policy-setup` module must be applied successfully before the `metrics-integration` module or `logs-integration` module, because they depend on IAM policies, dynamic groups / identity trust, and (if configured) workload identity federation artifacts created by the former.
 
 > **NOTE:** These modules assume both the New Relic and OCI providers are already configured. See: [New Relic getting started](https://registry.terraform.io/providers/newrelic/newrelic/latest/docs/guides/getting_started) and [OCI provider setup](https://registry.terraform.io/providers/oracle/oci/latest/docs).
 
@@ -223,7 +224,7 @@ module "oci_policy_setup" {
   svc_user_name  = "svc-newrelic-wif"
 
   # Enable only metrics & common policies (example)
-  policy_stack = "METRICS,COMMON"
+  policy_stack = "METRICS,COMMON,LOGS"
 }
 ```
 
@@ -292,6 +293,66 @@ Key variables (metrics module):
 * `ingest_api_secret_ocid` / `user_api_secret_ocid` – Vault secret OCIDs for ingest and user API keys (avoid embedding plain‑text keys).
 * `newrelic_endpoint` – Logical endpoint selector; the module maps this value to the actual metric ingest URL (use the EU variant for EU accounts).
 * `region` – OCI region key (short code) where resources for this module are created (for example: `iad`, `phx`, `fra`). Provide ONLY the region key, not the full region identifier (so use `iad` instead of `us-ashburn-1`).
+
+#### Example: Logs integration module
+
+```hcl
+module "oci_logs_integration" {
+  source = "github.com/newrelic/terraform-provider-newrelic/examples/modules/cloud-integrations/oci/logs-integration"
+
+  # oci configuration
+  tenancy_ocid = "ocid1.tenancy.oc1..***"
+  compartment_ocid = module.oci_policy_setup.compartment_ocid
+  region = "us-ashburn-1"
+  
+  # new relic logging prefix
+  newrelic_logging_prefix = "newrelic-logs"
+  
+  # network components
+  function_subnet_id = module.oci_policy_setup.function_subnet_id
+  
+  # function application environment variables configuration
+  debug_enabled = "FALSE"
+  new_relic_region = "US"
+  secret_ocid = module.oci_policy_setup.ingest_vault_ocid
+  
+  # connector hub configuration
+  connector_hub_details = "[{\"display_name\":\"newrelic-logs-connector\",\"description\":\"Service connector for logs from compartment A to New Relic\",\"log_sources\":[{\"compartment_id\":\"ocid1.tenancy.oc1..***\",\"log_group_id\":\"ocid1.loggroup.oc1.iad.***\"}]}]"
+}
+```
+
+Key variables:
+
+- function application environment variables configuration:
+  - `debug_enabled`: Boolean to enable or disable function debug logs.
+  - `new_relic_region`: The New Relic region (US or EU).
+  - `secret_ocid`: The OCID of the secret in OCI Vault containing New Relic License Key.
+- connector hub configuration: A JSON *string* (must be valid, stringified JSON) whose root is an array of connector hub definition objects. Each object supports:
+  * `display_name` (string) : name of the connector hub - must have prefix `newrelic-logs`
+  * `description` (string) (optional): connector hub description
+  * `log_sources`: 
+    * list of compartment OCID and log group OCID
+
+The example above shows a single‑element JSON array wrapped in quotes to satisfy Terraform's string input expectation. Example object structure:
+     
+```json
+[
+  {
+    "display_name": "newrelic-logs-connector",
+    "description": "Service connector for logs from compartment A to New Relic",
+    "log_sources": [
+      {
+        "compartment_id": "ocid1.compartment.oc1..***",
+        "log_group_id": "ocid1.loggroup.oc1.iad.***"
+      },
+      {
+        "compartment_id": "ocid1.compartment.oc1..***",
+        "log_group_id": "ocid1.loggroup.oc1.iad.***"
+      }
+    ]
+  }
+]
+```
 
 > Required ordering: Always apply the `policy-setup` module before the `metrics-integration` module. Only run them together in a single configuration if Terraform can resolve the dependency graph (for example, by referencing outputs from `policy-setup`). Applying metrics integration without the prerequisite policies will result in authorization failures when creating Service Connector Hub resources or invoking functions.
 
