@@ -11,7 +11,7 @@ resource "oci_functions_application" "logging_function_app" {
   display_name               = local.function_app_name
   freeform_tags              = local.freeform_tags
   shape                      = local.function_app_shape
-  subnet_ids                 = [var.function_subnet_id]
+  subnet_ids                 = [var.create_vcn ? module.vcn[0].subnet_id[local.subnet] : var.function_subnet_id]
 }
 
 # --- Function Resources ---
