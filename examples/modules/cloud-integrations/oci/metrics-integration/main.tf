@@ -67,7 +67,7 @@ resource "oci_sch_service_connector" "service_connector" {
   target {
     kind = "functions"
     function_id           = oci_functions_function.metrics_function.id
-    batch_size_in_kbs     = each.value["batch_size_in_kbs"]
-    batch_time_in_sec     = each.value["batch_time_in_sec"]
+    batch_size_in_kbs     = 100
+    batch_time_in_sec     = 60
   }
 }

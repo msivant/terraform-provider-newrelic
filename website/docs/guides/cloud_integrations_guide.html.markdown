@@ -256,7 +256,7 @@ module "oci_metrics_integration" {
   ingest_api_secret_ocid = "ocid1.vaultsecret.oc1..dddddddigingestsecret" # or module.oci_policy_setup.ingest_vault_ocid
   user_api_secret_ocid   = "ocid1.vaultsecret.oc1..eeeeeeeeusersecret123" # or module.oci_policy_setup.user_vault_ocid
 
-  connector_hubs_data = "[{\"batch_size_in_kbs\":100,\"batch_time_in_sec\":60,\"compartments\":[{\"compartment_id\":\"ocid1.tenancy.oc1..aaaaaaaaexampletenancy\",\"namespaces\":[\"oci_faas\"]}],\"description\":\"[DO NOT DELETE] New Relic Metrics Connector Hub\",\"name\":\"newrelic-metrics-connector-hub-us-ashburn\"}]"
+  connector_hubs_data = "[{\"compartments\":[{\"compartment_id\":\"ocid1.tenancy.oc1..aaaaaaaaexampletenancy\",\"namespaces\":[\"oci_faas\"]}],\"description\":\"[DO NOT DELETE] New Relic Metrics Connector Hub\",\"name\":\"newrelic-metrics-connector-hub-us-ashburn\"}]"
 }
 ```
 
@@ -264,8 +264,6 @@ Key variables (metrics module):
 
 * `create_vcn` / `function_subnet_id` – Networking control. Set `create_vcn=false` and provide an existing `function_subnet_id` to reuse existing infrastructure.
 * `connector_hubs_data` – A JSON *string* (must be valid, stringified JSON) whose root is an array of connector hub definition objects. Each object supports:
-  * `batch_size_in_kbs` (number)
-  * `batch_time_in_sec` (number)
   * `compartments` (array of objects with `compartment_id` and `namespaces` (array of strings))
   * `description` (string)
   * `name` (string)
@@ -274,8 +272,6 @@ Key variables (metrics module):
   ```json
   [
     {
-      "batch_size_in_kbs": 100,
-      "batch_time_in_sec": 60,
       "compartments": [
         {
           "compartment_id": "ocid1.tenancy.oc1..aaaaaaaaexampletenancy",
