@@ -37,7 +37,7 @@ variable "newrelic_provider_region" {
   description = "The region where the New Relic provider resources will be created."
 }
 
-variable "policy_stack" {
+variable "instrumentation_type" {
   type        = string
   description = "A string indicating which parts of the stack to deploy. Use comma-separated values from METRICS, LOGS, COMMON."
 }

@@ -11,7 +11,7 @@ variable "compartment_ocid" {
 variable "nr_prefix" {
   type        = string
   description = "The prefix for naming resources in this module."
-  default     = "newrelic"
+  default     = "metrics"
 }
 
 variable "region" {

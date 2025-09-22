@@ -14,8 +14,8 @@ locals {
   }
 
   terraform_suffix               = "terraform"
-  newrelic_metrics_access_policy = contains(split(",", var.policy_stack), "METRICS")
-  newrelic_logs_access_policy    = contains(split(",", var.policy_stack), "LOGS")
+  newrelic_metrics_access_policy = contains(split(",", var.instrumentation_type), "METRICS")
+  newrelic_logs_access_policy    = contains(split(",", var.instrumentation_type), "LOGS")
   newrelic_logs_policy           = "newrelic_logs_policy_DO_NOT_REMOVE-${local.terraform_suffix}"
   newrelic_metrics_policy        = "newrelic_metrics_policy_DO_NOT_REMOVE-${local.terraform_suffix}"
   newrelic_common_policy         = "newrelic_common_policy_DO_NOT_REMOVE-${local.terraform_suffix}"

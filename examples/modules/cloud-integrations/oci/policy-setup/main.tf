@@ -1,7 +1,7 @@
 resource "oci_identity_compartment" "newrelic_compartment" {
   compartment_id = var.tenancy_ocid
   name           = "newrelic-compartment-${local.terraform_suffix}"
-  description    = "Compartment for New Relic integration resources"
+  description    = "[DO NOT REMOVE] Compartment for New Relic integration resources"
   enable_delete  = false
   freeform_tags  = local.freeform_tags
 }
@@ -123,17 +123,18 @@ resource "oci_identity_policy" "nr_common_policy" {
 }
 
 resource "newrelic_cloud_oci_link_account" "linkAccount" {
-  account_id        = var.newrelic_account_id
-  name              = local.linked_account_name
-  compartment_ocid  = oci_identity_compartment.newrelic_compartment.id
-  oci_home_region   = local.home_region
-  tenant_id         = var.tenancy_ocid
-  ingest_vault_ocid = oci_vault_secret.ingest_api_key.id
-  user_vault_ocid   = oci_vault_secret.user_api_key.id
-  oci_client_id     = var.client_id
-  oci_client_secret = var.client_secret
-  oci_domain_url    = var.oci_domain_url
-  oci_svc_user_name = var.svc_user_name
+  account_id           = var.newrelic_account_id
+  name                 = local.linked_account_name
+  compartment_ocid     = oci_identity_compartment.newrelic_compartment.id
+  oci_home_region      = local.home_region
+  tenant_id            = var.tenancy_ocid
+  ingest_vault_ocid    = oci_vault_secret.ingest_api_key.id
+  user_vault_ocid      = oci_vault_secret.user_api_key.id
+  oci_client_id        = var.client_id
+  oci_client_secret    = var.client_secret
+  oci_domain_url       = var.oci_domain_url
+  oci_svc_user_name    = var.svc_user_name
+  instrumentation_type = var.instrumentation_type
 }
 
 output "compartment_ocid" {

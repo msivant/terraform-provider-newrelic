@@ -220,14 +220,14 @@ module "oci_policy_setup" {
   oci_domain_url = "https://idcs-abcdef1234567890.identity.oraclecloud.com"
   svc_user_name  = "svc-newrelic-wif"
 
-  # Enable only metrics & common policies (example)
-  policy_stack = "METRICS,COMMON"
+  # Enable metrics & logs policies (example)
+  instrumentation_type = "METRICS,LOGS"
 }
 ```
 
 Key variables (policy module):
 
-* `policy_stack` – Comma‑separated list of any of `METRICS`, `LOGS`, `COMMON` controlling which policy sets are deployed.
+* `instrumentation_type` – Comma‑separated list of any of `METRICS`, `LOGS`, `METRICS,LOGS` controlling which policy sets are deployed.
 * `client_id`, `client_secret`, `oci_domain_url`, `svc_user_name` – Workload identity federation (OAuth2) inputs (see the OCI link account resource docs for guidance).
 * `newrelic_provider_region` – Region context for New Relic provider operations (for example, `US` or `EU`).
 

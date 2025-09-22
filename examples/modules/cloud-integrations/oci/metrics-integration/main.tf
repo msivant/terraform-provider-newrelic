@@ -1,15 +1,15 @@
 resource "oci_functions_application" "metrics_function_app" {
   compartment_id = var.compartment_ocid
   config = {
-    "FORWARD_TO_NR"                = "True"
-    "LOGGING_ENABLED"              = "False"
-    "NR_METRIC_ENDPOINT"           = var.newrelic_endpoint
-    "TENANCY_OCID"                 = var.tenancy_ocid
-    "SECRET_OCID"                  = var.ingest_api_secret_ocid
-    "VAULT_REGION"                 = local.home_region
+    "FORWARD_TO_NR"      = "True"
+    "LOGGING_ENABLED"    = "False"
+    "NR_METRIC_ENDPOINT" = var.newrelic_endpoint
+    "TENANCY_OCID"       = var.tenancy_ocid
+    "SECRET_OCID"        = var.ingest_api_secret_ocid
+    "VAULT_REGION"       = local.home_region
   }
   defined_tags               = {}
-  display_name               = "${var.nr_prefix}-metrics-${var.region}-function-app-${local.terraform_suffix}"
+  display_name               = "newrelic-${var.nr_prefix}-${var.region}-function-app-${local.terraform_suffix}"
   freeform_tags              = local.freeform_tags
   network_security_group_ids = []
   shape                      = "GENERIC_X86"
@@ -20,21 +20,17 @@ resource "oci_functions_application" "metrics_function_app" {
 
 resource "oci_functions_function" "metrics_function" {
   application_id = oci_functions_application.metrics_function_app.id
-  depends_on = [oci_functions_application.metrics_function_app]
-  display_name   = "${oci_functions_application.metrics_function_app.display_name}-metrics-function-${local.terraform_suffix}"
-  memory_in_mbs  = "256"
+  depends_on     = [oci_functions_application.metrics_function_app]
+  display_name   = "newrelic-${var.nr_prefix}-${var.region}-metrics-function-${local.terraform_suffix}"
+  memory_in_mbs  = "128"
   defined_tags   = {}
-  freeform_tags = local.freeform_tags
+  freeform_tags  = local.freeform_tags
   image          = "${var.region}.ocir.io/idms1yfytybe/public-newrelic-repo:latest"
-  provisioned_concurrency_config {
-    strategy = "CONSTANT"
-    count = 20
-  }
 }
 
 resource "oci_sch_service_connector" "service_connector" {
-  for_each = { for hub in jsondecode(var.connector_hubs_data) : hub["name"] => hub }
-  depends_on = [oci_functions_function.metrics_function]
+  for_each       = { for hub in jsondecode(var.connector_hubs_data) : hub["name"] => hub }
+  depends_on     = [oci_functions_function.metrics_function]
   compartment_id = var.compartment_ocid
   display_name   = "${each.value["name"]} (${local.terraform_suffix})"
   description    = each.value["description"]
@@ -65,9 +61,9 @@ resource "oci_sch_service_connector" "service_connector" {
   }
 
   target {
-    kind = "functions"
-    function_id           = oci_functions_function.metrics_function.id
-    batch_size_in_kbs     = 100
-    batch_time_in_sec     = 60
+    kind              = "functions"
+    function_id       = oci_functions_function.metrics_function.id
+    batch_size_in_kbs = 100
+    batch_time_in_sec = 60
   }
 }
