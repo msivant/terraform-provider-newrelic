@@ -16,9 +16,9 @@ locals {
   terraform_suffix               = "terraform"
   newrelic_metrics_access_policy = contains(split(",", var.policy_stack), "METRICS")
   newrelic_logs_access_policy    = contains(split(",", var.policy_stack), "LOGS")
-  newrelic_logs_policy           = "${var.nr_prefix}-logs-policy-${local.terraform_suffix}"
-  newrelic_metrics_policy        = "${var.nr_prefix}-metrics-policy-${local.terraform_suffix}"
-  newrelic_common_policy         = "${var.nr_prefix}-common-policy-${local.terraform_suffix}"
-  dynamic_group_name             = "${var.nr_prefix}-dynamic-group-${local.terraform_suffix}"
+  newrelic_logs_policy           = "newrelic_logs_policy_DO_NOT_REMOVE-${local.terraform_suffix}"
+  newrelic_metrics_policy        = "newrelic_metrics_policy_DO_NOT_REMOVE-${local.terraform_suffix}"
+  newrelic_common_policy         = "newrelic_common_policy_DO_NOT_REMOVE-${local.terraform_suffix}"
+  dynamic_group_name             = "newrelic_dynamic_group_DO_NOT_REMOVE-${local.terraform_suffix}"
   linked_account_name            = "${var.nr_prefix}-oci-${local.terraform_suffix}"
 }
