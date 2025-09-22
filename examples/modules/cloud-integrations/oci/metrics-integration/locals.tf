@@ -8,7 +8,7 @@ locals {
     newrelic-terraform = "true"
   }
 
-  terraform_suffix = "terraform"
+  terraform_suffix = "tf"
 
   # Names for the network infra
   vcn_name        = "newrelic-${var.nr_prefix}-${var.region}-vcn"

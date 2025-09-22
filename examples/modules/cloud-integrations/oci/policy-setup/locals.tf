@@ -13,7 +13,7 @@ locals {
     newrelic-terraform = "true"
   }
 
-  terraform_suffix               = "terraform"
+  terraform_suffix               = "tf"
   newrelic_metrics_access_policy = contains(split(",", var.instrumentation_type), "METRICS")
   newrelic_logs_access_policy    = contains(split(",", var.instrumentation_type), "LOGS")
   newrelic_logs_policy           = "newrelic_logs_policy_DO_NOT_REMOVE-${local.terraform_suffix}"
