@@ -309,7 +309,8 @@ module "oci_logs_integration" {
   new_relic_region = "US"
   secret_ocid = module.oci_policy_setup.ingest_vault_ocid
   
-  # connector hub configuration
+  # connector hub configuration (Optional)
+  # provide empty string ("") or null to skip log export
   connector_hub_details = "[{\"display_name\":\"newrelic-logs-connector\",\"description\":\"Service connector for logs from compartment A to New Relic\",\"log_sources\":[{\"compartment_id\":\"ocid1.tenancy.oc1..***\",\"log_group_id\":\"ocid1.loggroup.oc1.iad.***\"}]}]"
 }
 ```
