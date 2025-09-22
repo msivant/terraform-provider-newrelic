@@ -85,6 +85,16 @@ func resourceNewRelicCloudOciAccountLinkAccount() *schema.Resource {
 				Description: "The OCI ingest secret OCID.",
 				Optional:    true,
 			},
+			"instrumentation_type": {
+				Type:        schema.TypeString,
+				Description: "Specifies the type of integration, such as metrics, logs, or a combination of logs and metrics.",
+				Optional:    true,
+			},
+			"logging_stack_ocid": {
+				Type:        schema.TypeString,
+				Description: "The Logging stack identifier for the OCI account.",
+				Optional:    true,
+			},
 			"user_vault_ocid": {
 				Type:        schema.TypeString,
 				Description: "The user secret OCID.",
@@ -169,6 +179,10 @@ func expandOciCloudLinkAccountInput(d *schema.ResourceData) cloud.CloudLinkCloud
 
 	if ingestVaultOcid, ok := d.GetOk("ingest_vault_ocid"); ok {
 		ociAccount.IngestVaultOcid = ingestVaultOcid.(string)
+	}
+
+	if instrumentationType, ok := d.GetOk("instrumentation_type"); ok {
+		ociAccount.InstrumentationType = instrumentationType.(string)
 	}
 
 	if userVaultOcid, ok := d.GetOk("user_vault_ocid"); ok {
@@ -265,13 +279,16 @@ func expandOciCloudUpdateAccountInput(d *schema.ResourceData) cloud.CloudUpdateC
 		ociAccount.IngestVaultOcid = ingestVaultOcid.(string)
 	}
 
-	if userVaultOcid, ok := d.GetOk("user_vault_ocid"); ok {
-		ociAccount.UserVaultOcid = userVaultOcid.(string)
+	if instrumentationType, ok := d.GetOk("instrumentation_type"); ok {
+		ociAccount.InstrumentationType = instrumentationType.(string)
 	}
 
-	// Check if disabled field exists (future proofing)
-	if disabled, ok := d.GetOk("disabled"); ok {
-		ociAccount.Disabled = disabled.(bool)
+	if loggingStackOcid, ok := d.GetOk("logging_stack_ocid"); ok {
+		ociAccount.LoggingStackOcid = loggingStackOcid.(string)
+	}
+
+	if userVaultOcid, ok := d.GetOk("user_vault_ocid"); ok {
+		ociAccount.UserVaultOcid = userVaultOcid.(string)
 	}
 
 	input := cloud.CloudUpdateCloudAccountsInput{
