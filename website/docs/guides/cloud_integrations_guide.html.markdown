@@ -176,17 +176,15 @@ Oracle Cloud Infrastructure (OCI) integrations collect metrics, logs, and metada
 
 #### Supported OCI service categories (non‑exhaustive)
 
-|                          |                            |                          |
-|--------------------------|----------------------------|--------------------------|
-| `API Gateway`            | `Autonomous Database`      | `Block Storage`          |
-| `Compute`                | `Compute Infrastructure`   | `Compute Instance Health`|
-| `Compute Agent`          | `Database`                 | `Database Cluster`       |
-| `Functions (FaaS)`       | `Health Checks`            | `Internet Gateway`       |
-| `Load Balancer (LBaaS)`  | `Logging`                  | `NAT Gateway`            |
-| `Network Load Balancer`  | `NoSQL Database`           | `Object Storage`         |
-| `Container Engine (OKE)` | `PostgreSQL`               | `Service Connector Hub`  |
-| `Service Gateway`        | `Virtual Cloud Network`    | `VCN IP`                 |
-| `VM Resource Utilization`|
+|                            |                                    |                             |
+|----------------------------|------------------------------------|-----------------------------| 
+| `API Gateway`              | `Block Storage`                    | `Compute`                   |
+| `Compute Agent`            | `Compute Infrastructure Health`    | `Compute Instance Health`   |
+| `Container Engine (OKE)`   | `Container Instance`               | `Functions (FaaS)`          |
+| `Health Checks`            | `Instance Pools`                   | `Load Balancer (LBaaS)`     |
+| `Logging`                  | `Network Load Balancer`            | `Object Storage`            |
+| `PostgreSQL`               | `Queue`                            | `Service Connector Hub`     |
+| `Streaming`                |                                    |                             |
 
 #### Modular OCI setup
 
