@@ -309,7 +309,8 @@ module "oci_logs_integration" {
   newrelic_logging_prefix = "newrelic-logs"
   
   # network components
-  function_subnet_id = module.oci_policy_setup.function_subnet_id
+  create_vcn = true # set to false to reuse existing VCN/subnet created from metrics module
+  function_subnet_id = module.oci_metrics_integration.function_subnet_id # ignored when create_vcn = true
   
   # function application environment variables configuration
   debug_enabled = "FALSE"
@@ -323,6 +324,9 @@ module "oci_logs_integration" {
 
 Key variables:
 
+- network components:
+  - `create_vcn`: set to false to reuse existing VCN/subnet created from metrics module. 
+  - `function_subnet_id`: subnet OCID for the function to be created in. Ignored if create_vcn is true. 
 - function application environment variables configuration:
   - `debug_enabled`: Boolean to enable or disable function debug logs.
   - `new_relic_region`: The New Relic region (US or EU).
