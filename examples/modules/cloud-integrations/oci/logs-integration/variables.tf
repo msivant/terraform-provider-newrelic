@@ -20,6 +20,12 @@ variable "newrelic_logging_prefix" {
 }
 
 # VCN variables
+variable "create_vcn" {
+  type        = bool
+  default     = true
+  description = "Variable to create virtual network for the setup. True by default"
+}
+
 variable "function_subnet_id" {
   type        = string
   description = "The OCID of the subnet to be used for the function app. If create_vcn is set to true, that will take precedence"
