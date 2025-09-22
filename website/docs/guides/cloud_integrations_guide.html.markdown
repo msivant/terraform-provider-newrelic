@@ -310,7 +310,7 @@ module "oci_logs_integration" {
   
   # network components
   create_vcn = true # set to false to reuse existing VCN/subnet created from metrics module
-  function_subnet_id = module.oci_metrics_integration.function_subnet_id # ignored when create_vcn = true
+  function_subnet_id = module.oci_metrics_integration.vcn_network_details.subnet_id # ignored when create_vcn = true
   
   # function application environment variables configuration
   debug_enabled = "FALSE"
@@ -326,7 +326,8 @@ Key variables:
 
 - network components:
   - `create_vcn`: set to false to reuse existing VCN/subnet created from metrics module. 
-  - `function_subnet_id`: subnet OCID for the function to be created in. Ignored if create_vcn is true. 
+  - `function_subnet_id`: subnet OCID for the function to be created in. Ignored if create_vcn is true.
+> If you want to use an existing private subnet, make sure it has required route rules and gateways with internet and all OCI services access. 
 - function application environment variables configuration:
   - `debug_enabled`: Boolean to enable or disable function debug logs.
   - `new_relic_region`: The New Relic region (US or EU).

@@ -35,9 +35,15 @@ variable "function_subnet_id" {
 variable "connector_hub_details" {
   type        = string
   description = "JSON formatted string for the service connectors to be created. See README for details and example"
+  default     = null
 }
 
 # New Relic Function variables
+variable "image_url" {
+  type = string
+  description = "The URL of the Docker image for the New Relic function."
+}
+
 variable "debug_enabled" {
   type        = string
   default     = "FALSE"

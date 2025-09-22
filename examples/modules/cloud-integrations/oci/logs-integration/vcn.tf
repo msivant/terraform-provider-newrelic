@@ -5,14 +5,14 @@ module "vcn" {
   compartment_id           = var.compartment_ocid
   defined_tags             = {}
   freeform_tags            = local.freeform_tags
-  vcn_cidrs                = ["10.0.0.0/16"]
-  vcn_dns_label            = "nrfunction"
+  vcn_cidrs                = [local.vcn_cidr_block]
+  vcn_dns_label            = local.vcn_dns_label
   vcn_name                 = local.vcn_name
   lockdown_default_seclist = false
   subnets = {
     private = {
-      cidr_block = "10.0.0.0/16"
-      type       = "private"
+      cidr_block = local.subnet_cidr_block
+      type       = local.subnet_type
       name       = local.subnet
     }
   }
@@ -40,7 +40,7 @@ resource "oci_core_default_route_table" "default_internet_route" {
   manage_default_resource_id = data.oci_core_route_tables.default_vcn_route_table[0].route_tables[0].id
   count = var.create_vcn ? 1 : 0
   route_rules {
-    destination       = "0.0.0.0/0"
+    destination       = local.internet_destination
     destination_type  = "CIDR_BLOCK"
     network_entity_id = module.vcn[0].internet_gateway_id
     description       = "Route to Internet Gateway for New Relic metrics"

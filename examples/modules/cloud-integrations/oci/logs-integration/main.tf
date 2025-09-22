@@ -20,14 +20,14 @@ resource "oci_functions_function" "logging_function" {
   display_name    = local.function_name
   memory_in_mbs   = local.memory_in_mbs
   freeform_tags   = local.freeform_tags
-  image           = local.image_url
+  image           = var.image_url
 }
 
 # --- Service Connector Hub - Routes logs to New Relic function ---
 resource "oci_sch_service_connector" "nr_logging_service_connector" {
-  for_each = {
+  for_each = var.connector_hub_details != null ? {
     for connector in jsondecode(var.connector_hub_details) : connector.display_name => connector
-  }
+  } : {}
 
   compartment_id = var.compartment_ocid
   display_name   = each.value.display_name
