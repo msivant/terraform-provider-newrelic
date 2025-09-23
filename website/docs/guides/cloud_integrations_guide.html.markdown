@@ -303,7 +303,7 @@ module "oci_logs_integration" {
   region = "us-ashburn-1"
   
   # new relic logging prefix
-  newrelic_logging_prefix = "newrelic-logs"
+  newrelic_logging_identifier = "newrelic-logs"
   
   # network components
   create_vcn = true # set to false to reuse existing VCN/subnet created from metrics module
@@ -317,7 +317,7 @@ module "oci_logs_integration" {
   # connector hub configuration (Optional)
   # provide empty string ("") or null to skip log export
   connector_hub_details = "[{\"display_name\":\"newrelic-logs-connector\",\"description\":\"Service connector for logs from compartment A to New Relic\",\"log_sources\":[{\"compartment_id\":\"ocid1.tenancy.oc1..***\",\"log_group_id\":\"ocid1.loggroup.oc1.iad.***\"}]}]"
-  image_url = "iad.ocir.io/newrelic/functions/newrelic-oci-logs-integration:latest" # latest image for the region of your choice
+  image_version = "latest" # latest image version for the logging function
 }
 ```
 
