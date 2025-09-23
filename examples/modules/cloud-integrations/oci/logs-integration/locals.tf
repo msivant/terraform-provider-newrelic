@@ -30,5 +30,5 @@ locals {
   function_name                 = "newrelic-${var.newrelic_logging_identifier}-${var.region}-logs-function-${local.terraform_suffix}"
   function_memory_in_mbs        = "128"
   time_out_in_seconds           = 300
-  image_url                     = "${var.region}/idfmbxeaoavl/newrelic-log-container/log-forwarder:${var.image_version}"
+  image_url                     = "${var.region}/idptojlonu4e/newrelic-logs-integration/oci-log-forwarder:${var.image_version}"
 }
