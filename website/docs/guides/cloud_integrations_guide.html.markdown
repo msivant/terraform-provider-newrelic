@@ -303,21 +303,23 @@ module "oci_logs_integration" {
   region = "us-ashburn-1"
   
   # new relic logging prefix
-  newrelic_logging_identifier = "newrelic-logs"
+  newrelic_logging_identifier = "logs"
   
   # network components
   create_vcn = true # set to false to reuse existing VCN/subnet created from metrics module
   function_subnet_id = module.oci_metrics_integration.vcn_network_details.subnet_id # ignored when create_vcn = true
   
   # function application environment variables configuration
+  image_version = "latest" # latest image version for the logging function
   debug_enabled = "FALSE"
   new_relic_region = "US"
   secret_ocid = module.oci_policy_setup.ingest_vault_ocid
   
   # connector hub configuration (Optional)
-  # provide empty string ("") or null to skip log export
+  # Don't add the following variables if you want to skip log export.
   connector_hub_details = "[{\"display_name\":\"newrelic-logs-connector\",\"description\":\"Service connector for logs from compartment A to New Relic\",\"log_sources\":[{\"compartment_id\":\"ocid1.tenancy.oc1..***\",\"log_group_id\":\"ocid1.loggroup.oc1.iad.***\"}]}]"
-  image_version = "latest" # latest image version for the logging function
+  batch_size_in_kbs = 6000 # max payload size in KBs (default 6000)
+  batch_time_in_sec = 60 # max wait time in seconds before sending batch (default 60)
 }
 ```
 

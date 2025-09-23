@@ -17,7 +17,7 @@ variable "region" {
 variable "newrelic_logging_identifier" {
   type        = string
   description = "A unique label or name identifier for all resources in this deployment. Leave it blank if not needed."
-  default = ""
+  default = "logs"
 }
 
 # VCN variables
@@ -55,6 +55,7 @@ variable "batch_time_in_sec" {
 variable "image_version" {
   type = string
   description = "The version of the Docker image for the New Relic function for the region."
+  default = "latest"
 }
 
 variable "debug_enabled" {
