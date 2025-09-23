@@ -3,16 +3,18 @@ locals {
     newrelic-terraform = "true"
   }
 
+  terraform_suffix = "terraform"
+
   # VCN Constants
-  vcn_name          = "newrelic-${var.newrelic_logging_prefix}-${var.region}-vcn"
-  nat_gateway       = "newrelic-${var.newrelic_logging_prefix}-${var.region}-natgateway"
-  service_gateway   = "newrelic-${var.newrelic_logging_prefix}-${var.region}-servicegateway"
-  internet_gateway  = "newrelic-${var.newrelic_logging_prefix}-${var.region}-internetgateway"
+  vcn_name          = "newrelic-${var.newrelic_logging_identifier}-${var.region}-vcn-${local.terraform_suffix}"
+  nat_gateway       = "newrelic-${var.newrelic_logging_identifier}-${var.region}-natgateway-${local.terraform_suffix}"
+  service_gateway   = "newrelic-${var.newrelic_logging_identifier}-${var.region}-servicegateway-${local.terraform_suffix}"
+  internet_gateway  = "newrelic-${var.newrelic_logging_identifier}-${var.region}-internetgateway-${local.terraform_suffix}"
   vcn_dns_label     = "nrlogging"
   vcn_cidr_block    = "10.0.0.0/16"
 
   # Subnet Constants
-  subnet               = "newrelic-${var.newrelic_logging_prefix}-${var.region}-private-subnet"
+  subnet               = "newrelic-${var.newrelic_logging_identifier}-${var.region}-private-subnet-${local.terraform_suffix}"
   subnet_cidr_block    = "10.0.0.0/16"
   subnet_type          = "private"
 
@@ -20,15 +22,13 @@ locals {
   internet_destination = "0.0.0.0/0"
 
   # Function App Constants
-  function_app_name  = "newrelic-${var.newrelic_logging_prefix}-${var.region}-logs-function-app"
+  function_app_name  = "newrelic-${var.newrelic_logging_identifier}-${var.region}-logs-function-app-${local.terraform_suffix}"
   function_app_shape = "GENERIC_X86"
   client_ttl         = 30
 
   # Function Constants
-  function_name        = "newrelic-${var.newrelic_logging_prefix}-${var.region}-logs-function"
-  memory_in_mbs        = "128"
-
-  # Connector Hub Constants
-  batch_size_in_kbs = 6000
-  batch_time_in_sec = 60
+  function_name                 = "newrelic-${var.newrelic_logging_identifier}-${var.region}-logs-function-${local.terraform_suffix}"
+  function_memory_in_mbs        = "128"
+  time_out_in_seconds           = 300
+  image_url                     = "${var.region}/idfmbxeaoavl/newrelic-log-container/log-forwarder:${var.image_version}"
 }

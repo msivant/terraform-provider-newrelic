@@ -16,11 +16,12 @@ resource "oci_functions_application" "logging_function_app" {
 
 # --- Function Resources ---
 resource "oci_functions_function" "logging_function" {
-  application_id  = oci_functions_application.logging_function_app.id
-  display_name    = local.function_name
-  memory_in_mbs   = local.memory_in_mbs
-  freeform_tags   = local.freeform_tags
-  image           = var.image_url
+  application_id     = oci_functions_application.logging_function_app.id
+  display_name       = local.function_name
+  memory_in_mbs      = local.function_memory_in_mbs
+  timeout_in_seconds = local.time_out_in_seconds
+  freeform_tags      = local.freeform_tags
+  image              = local.image_url
 }
 
 # --- Service Connector Hub - Routes logs to New Relic function ---
@@ -47,8 +48,8 @@ resource "oci_sch_service_connector" "nr_logging_service_connector" {
 
   target {
     kind              = "functions"
-    batch_size_in_kbs = local.batch_size_in_kbs
-    batch_time_in_sec = local.batch_time_in_sec
+    batch_size_in_kbs = var.batch_size_in_kbs
+    batch_time_in_sec = var.batch_time_in_sec
     compartment_id    = var.compartment_ocid
     function_id       = oci_functions_function.logging_function.id
   }

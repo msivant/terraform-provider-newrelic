@@ -6,7 +6,7 @@ variable "tenancy_ocid" {
 
 variable "compartment_ocid" {
   type        = string
-  description = "The OCID of the compartment where resources will be created. Do not modify."
+  description = "The OCID of the compartment where resources will be created. Use the compartment OCID already created as part of Policy Setup module."
 }
 
 variable "region" {
@@ -14,9 +14,10 @@ variable "region" {
   description = "The name of the OCI region where these resources will be deployed."
 }
 
-variable "newrelic_logging_prefix" {
+variable "newrelic_logging_identifier" {
   type        = string
-  description = "The prefix for naming all the logging resources in this module."
+  description = "A unique label or name identifier for all resources in this deployment. Leave it blank if not needed."
+  default = ""
 }
 
 # VCN variables
@@ -38,10 +39,22 @@ variable "connector_hub_details" {
   default     = null
 }
 
+variable "batch_size_in_kbs" {
+  type = number
+  description = "The maximum size of the batch of events to process. Maximum is 6000 KB."
+  default = 6000
+}
+
+variable "batch_time_in_sec" {
+  type = number
+  description = "The maximum amount of time to wait before processing a batch of events. Maximum is 300 seconds."
+  default = 60
+}
+
 # New Relic Function variables
-variable "image_url" {
+variable "image_version" {
   type = string
-  description = "The URL of the Docker image for the New Relic function."
+  description = "The version of the Docker image for the New Relic function for the region."
 }
 
 variable "debug_enabled" {
@@ -58,5 +71,5 @@ variable "new_relic_region" {
 
 variable "secret_ocid" {
   type        = string
-  description = "OCI Vault Secret OCID that contains the New Relic License Key."
+  description = "OCI Vault Secret OCID that contains the New Relic License Key. Use the secret OCID already created as part of Policy Setup module."
 }
