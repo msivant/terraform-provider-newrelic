@@ -9,9 +9,11 @@ description: |-
 
 Use this resource to link an Oracle Cloud Infrastructure (OCI) account to New Relic.
 
+This setup is used to create a provider account with OCI credentials, establishing a relationship between Oracle and New Relic. Additionally, as part of this integration, we store WIF (Workload Identity Federation) credentials which are further used for fetching data and validations, and vault OCIDs corresponding to the vault resource where the New Relic ingest and user keys are stored in the OCI console.
+
 ## Prerequisites
 
-You need an Oracle Cloud Infrastructure tenancy with IAM permissions to create and manage the identity artifacts (client/application, secrets, compartments, and service user) referenced below. OCI provides enterprise-grade cloud services across multiple global regions.
+The following prerequisites are required in OCI and New Relic for this resource to work properly. You need an OCI tenancy with IAM permissions to create and manage the identity artifacts (client/application, secrets, compartments, and service user) referenced below. OCI provides enterprise-grade cloud services across multiple global regions.
 
 > **NOTE:** This resource assumes you've already configured both the OCI and New Relic providers with valid credentials:
 > - [OCI provider setup](https://registry.terraform.io/providers/oracle/oci/latest/docs)
@@ -71,13 +73,17 @@ resource "newrelic_cloud_oci_link_account" "full" {
   oci_home_region   = "us-ashburn-1"
   oci_svc_user_name = "svc-newrelic-collector"
 
-  # Optional vault secret OCIDs (these may point to secrets that store rotated values)
+  # Vault secret OCIDs (these may point to secrets that store rotated values)
   ingest_vault_ocid = "ocid1.vaultsecret.oc1..ccccccccexample"
   user_vault_ocid   = "ocid1.vaultsecret.oc1..ddddddddexample"
+
+  # Integration configuration
+  instrumentation_type = "METRICS,LOGS"
 
   # Update-only fields (ignored during initial create, applied on update)
   oci_region        = "us-phoenix-1"
   metric_stack_ocid = "ocid1.stack.oc1..eeeeeeeeexample"
+  logging_stack_ocid = "ocid1.stack.oc1..ffffffloggingstack"
 }
 ```
 
@@ -96,8 +102,10 @@ The following arguments are supported (current provider schema):
 - `oci_svc_user_name` - (Required) Service user name associated with the WIF configuration.
 - `ingest_vault_ocid` - (Required) Vault secret OCID containing an ingest secret.
 - `user_vault_ocid` - (Required) Vault secret OCID containing a user or auxiliary secret.
+- `instrumentation_type` - (Optional) Specifies the type of integration, such as metrics, logs, or a combination of logs and metrics (e.g., `METRICS`, `LOGS`, `METRICS,LOGS`).
 - `oci_region` - (Optional, Update-only) OCI region for the linkage (ignored on create, applied on update).
 - `metric_stack_ocid` - (Optional, Update-only) Metric stack OCID (ignored on create, applied on update).
+- `logging_stack_ocid` - (Optional) The Logging stack identifier for the OCI account.
 
 ### ForceNew & Update-only Behavior
 
