@@ -168,13 +168,15 @@ Variables:
 <a id="oci"></a>
 ### Oracle Cloud Infrastructure
 
-Oracle Cloud Infrastructure (OCI) integrations collect metrics, logs, and metadata from supported OCI services and send them to your New Relic account. Data collection uses a combination of:
+Oracle Cloud Infrastructure (OCI) integration collects metrics, logs, and metadata from supported OCI services and sends them to your New Relic account. Data collection uses a combination of:
 
-* Service Connector Hub pipelines (for metrics / log export)
-* Functions for transformation and enrichment (where applicable)
+* Service Connector Hub pipelines (for metrics / logs export)
+* Functions for data transformation and payload enrichment
 * API polling to supplement metadata and tags
 
-#### Supported OCI service categories (non‑exhaustive)
+#### Supported OCI service categories
+
+The following OCI namespaces are supported by New Relic for metrics/logs collection via Service Connector Hub. These namespaces correspond to different OCI services and can be used when configuring your Service Connector Hub to export metrics to New Relic.
 
 |                            |                                    |                             |
 |----------------------------|------------------------------------|-----------------------------| 
@@ -188,13 +190,15 @@ Oracle Cloud Infrastructure (OCI) integrations collect metrics, logs, and metada
 
 #### Modular OCI setup
 
-Two composable modules are available under `examples/modules/cloud-integrations/oci/` so you can provision only what you need:
+The modular approach allows you to deploy only the specific OCI integration components you need, with clear separation between policy setup and data collection integrations. This design enables flexible deployment strategies where policy configuration can be managed independently from metrics and logging integrations.
+
+The following composable modules are available under `examples/modules/cloud-integrations/oci/` so you can provision only what you need:
 
 * `policy-setup` – Creates IAM policies and identity trust / configuration prerequisites (including workload identity federation inputs) required to link an OCI tenancy to New Relic.
 * `metrics-integration` – Creates Service Connector Hub resources, optional networking (VCN / subnets), and supporting artifacts that export metrics (and optionally logs) to New Relic.
 * `logs-integration` – Creates connector hubs, function and function app to export logs from Oracle Cloud to New Relic.
 
-Use them independently (for example, a central security team applies `policy-setup` while a platform team applies `metrics-integration` and/or `logs-integration`) or combine them in the same configuration. In all cases, the `policy-setup` module must be applied successfully before the `metrics-integration` module or `logs-integration` module, because they depend on IAM policies, dynamic groups / identity trust, and (if configured) workload identity federation artifacts created by the former.
+Use them independently or combine them in the same configuration. In all cases, the `policy-setup` module must be applied successfully before the `metrics-integration` or `logging-integration` module, because the latter depends on IAM policies, dynamic groups / identity trust, and (if configured) workload identity federation artifacts created by the former.
 
 > **NOTE:** These modules assume both the New Relic and OCI providers are already configured. See: [New Relic getting started](https://registry.terraform.io/providers/newrelic/newrelic/latest/docs/guides/getting_started) and [OCI provider setup](https://registry.terraform.io/providers/oracle/oci/latest/docs).
 
@@ -221,15 +225,15 @@ module "oci_policy_setup" {
   oci_domain_url = "https://idcs-abcdef1234567890.identity.oraclecloud.com"
   svc_user_name  = "svc-newrelic-wif"
 
-  # Enable only metrics & common policies (example)
-  policy_stack = "METRICS,COMMON,LOGS"
+  # Enable metrics & logs policies (example)
+  instrumentation_type = "METRICS,LOGS"
 }
 ```
 
 Key variables (policy module):
 
-* `policy_stack` – Comma‑separated list of any of `METRICS`, `LOGS`, `COMMON` controlling which policy sets are deployed.
-* `client_id`, `client_secret`, `oci_domain_url`, `svc_user_name` – Workload identity federation (OAuth2) inputs (see the OCI link account resource docs for guidance).
+* `instrumentation_type` – Comma‑separated list of any of `METRICS`, `LOGS`, `METRICS,LOGS` controlling which policy sets are deployed.
+* `client_id`, `client_secret`, `oci_domain_url`, `svc_user_name` – Workload identity federation (OAuth2) inputs (see the [OCI link account](https://registry.terraform.io/providers/newrelic/newrelic/latest/docs/resources/cloud_oci_link_account) resource docs for guidance).
 * `newrelic_provider_region` – Region context for New Relic provider operations (for example, `US` or `EU`).
 
 #### Example: Metrics integration module
@@ -262,7 +266,9 @@ module "oci_metrics_integration" {
 Key variables (metrics module):
 
 * `create_vcn` / `function_subnet_id` – Networking control. Set `create_vcn=false` and provide an existing `function_subnet_id` to reuse existing infrastructure.
-* `connector_hubs_data` – A JSON *string* (must be valid, stringified JSON) whose root is an array of connector hub definition objects. Each object supports:
+* `connector_hubs_data` – A JSON *string* (must be valid, stringified JSON) whose root is an array of connector hub definition objects. 
+  
+  Each object supports:
   * `compartments` (array of objects with `compartment_id` and `namespaces` (array of strings))
   * `description` (string)
   * `name` (string)
@@ -284,7 +290,6 @@ Key variables (metrics module):
   ```
 * `ingest_api_secret_ocid` / `user_api_secret_ocid` – Vault secret OCIDs for ingest and user API keys (avoid embedding plain‑text keys).
 * `newrelic_endpoint` – Logical endpoint selector; the module maps this value to the actual metric ingest URL (use the EU variant for EU accounts).
-* `region` – OCI region key (short code) where resources for this module are created (for example: `iad`, `phx`, `fra`). Provide ONLY the region key, not the full region identifier (so use `iad` instead of `us-ashburn-1`).
 
 #### Example: Logs integration module
 
@@ -353,6 +358,6 @@ The example above shows a single‑element JSON array wrapped in quotes to satis
 ]
 ```
 
-> Required ordering: Always apply the `policy-setup` module before the `metrics-integration` module. Only run them together in a single configuration if Terraform can resolve the dependency graph (for example, by referencing outputs from `policy-setup`). Applying metrics integration without the prerequisite policies will result in authorization failures when creating Service Connector Hub resources or invoking functions.
+> When implementing the New Relic OCI integration, the `policy-setup` module must always be applied before the `metrics-integration` or `logging-integration` modules. These modules can be run together in a single Terraform configuration only if the dependency graph can be successfully resolved. For example, this can be achieved by referencing outputs from the `policy-setup` module in the other integration modules. Failure to apply the necessary policies first will result in authorization errors when creating Service Connector Hub resources or invoking functions.
 
 [*Browse the OCI module source code on GitHub*](https://github.com/newrelic/terraform-provider-newrelic/tree/main/examples/modules/cloud-integrations/oci)

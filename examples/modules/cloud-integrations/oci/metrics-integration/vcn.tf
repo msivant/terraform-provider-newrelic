@@ -6,7 +6,7 @@ module "vcn" {
   defined_tags             = {}
   freeform_tags            = local.freeform_tags
   vcn_cidrs                = ["10.0.0.0/16"]
-  vcn_dns_label            = "nrfunction"
+  vcn_dns_label            = "NRDNS"
   vcn_name                 = "${local.vcn_name}-${local.terraform_suffix}"
   lockdown_default_seclist = false
   subnets = {

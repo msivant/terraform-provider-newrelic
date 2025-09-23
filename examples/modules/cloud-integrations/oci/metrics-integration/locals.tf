@@ -8,10 +8,10 @@ locals {
     newrelic-terraform = "true"
   }
 
-  terraform_suffix = "terraform"
+  terraform_suffix = "tf"
 
   # Names for the network infra
-  vcn_name        = "${var.nr_prefix}-metrics-${var.region}-vcn"
+  vcn_name        = "newrelic-${var.nr_prefix}-${var.region}-vcn"
   nat_gateway     = "${local.vcn_name}-natgateway-${local.terraform_suffix}"
   service_gateway = "${local.vcn_name}-servicegateway-${local.terraform_suffix}"
   subnet          = "${local.vcn_name}-private-subnet-${local.terraform_suffix}"

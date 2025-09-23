@@ -11,7 +11,7 @@ variable "compartment_ocid" {
 variable "nr_prefix" {
   type        = string
   description = "The prefix for naming resources in this module."
-  default     = "newrelic"
+  default     = "metrics"
 }
 
 variable "region" {
@@ -21,7 +21,7 @@ variable "region" {
 
 variable "newrelic_endpoint" {
   type        = string
-  default     = "newrelic-staging-metric-api"
+  default     = "newrelic-metric-api"
   description = "The endpoint to hit for sending the metrics. Varies by region [US|EU]"
   validation {
     condition     = contains(["newrelic-staging-metric-api", "newrelic-metric-api", "newrelic-eu-metric-api"], var.newrelic_endpoint)
